@@ -60,7 +60,7 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(not ("larcc" in sys.modules), "larcc is not installed")
     def test_vessel_tree_lar(self):
         import fibrous.tb_lar
-        tvg = TreeBuilder(teigen.tb_lar.TBLar)
+        tvg = TreeBuilder(fibrous.tb_lar.TBLar)
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
@@ -71,12 +71,30 @@ class TubeTreeTest(unittest.TestCase):
 
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_nothing(self):
-        print "skelet3d_installed", skelet3d_installed
+        print("skelet3d_installed", skelet3d_installed)
         # import ipdb; ipdb.set_trace()
         self.assertTrue(False)
 
+    def test_vessel_tree_vtk_with_new_subclass_vtk(self):
+        from fibrous.tb_vtk import TBVTK
+        tvg = TBVTK()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        output = tvg.buildTree()  # noqa
+
+    def test_vessel_tree_vtk_with_new_subclass_volume(self):
+        from fibrous.tb_volume import TBVolume
+        tvg = TBVolume()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        output = tvg.buildTree()  # noqa
+
     # @unittest.skip("test debug")
-    @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
+    # @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vtk(self):
         tvg = TreeBuilder('vtk')
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
@@ -122,7 +140,7 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vol(self):
         import fibrous.tb_volume
-        tvg = TreeBuilder(teigen.tb_volume.TBVolume)
+        tvg = TreeBuilder(fibrous.tb_volume.TBVolume)
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
@@ -172,7 +190,7 @@ class TubeTreeTest(unittest.TestCase):
             tree_data[i] = edge
 
         tvg = TreeBuilder('vtk')
-        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        # yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         # tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
         tvg.shape = [area_size, area_size, area_size]

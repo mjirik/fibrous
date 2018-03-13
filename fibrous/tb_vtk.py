@@ -9,10 +9,13 @@ import numpy as nm
 import yaml
 import argparse
 import sys
+
+if sys.version_info.major == 3:
+    xrange = range
 import numpy as np
 import vtk
 from scipy.interpolate import InterpolatedUnivariateSpline
-import tree
+from . import tree
 
 # new interface
 

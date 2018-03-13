@@ -36,31 +36,6 @@ class TubeSkeletonBuilder:
         self.segments_progress_callback = self.finish_progress_callback
         self.stop_processing = False
 
-        # if generator_class in ['vol', 'volume']:
-        #     import tb_volume
-        #     generator_class = tb_volume.TBVolume
-        # elif generator_class in ['lar']:
-        #     import tb_lar
-        #     generator_class = tb_lar.TBLar
-        # elif generator_class in ['vtk']:
-        #     import tb_vtk
-        #     generator_class = tb_vtk.TBVTK
-        # elif generator_class in ['kunes']:
-        #     import tb_lar_kunes
-        #     generator_class = tb_lar_kunes.TBLar
-        # elif generator_class in ['larsm']:
-        #     import tb_lar_smooth
-        #     generator_class = tb_lar_smooth.TBLarSmooth
-        # elif generator_class in ['lar_nojoints']:
-        #     import tb_lar
-        #     generator_class = tb_lar.TBLar
-        #     generator_params = {
-        #         'endDistMultiplicator': 0,
-        #         'use_joints': False
-        #     }
-        # self.generator_class = generator_class
-        # self.generator_params = generator_params
-
     def importFromYaml(self, filename):
         tube_skeleton, rawdata = read_tube_skeleton_from_yaml(
             filename=filename,
@@ -135,7 +110,7 @@ class TubeSkeletonBuilder:
                 p2m = cyl_data['nodeB_ZYX_mm']
                 rad = cyl_data['radius_mm']
                 self.add_cylinder(p1m, p2m, rad, cyl_id)
-            except Exception, e:
+            except Exception as e:
                 # import ipdb; ipdb.set_trace() #  noqa BREAKPOINT
 
                 logger.error(
@@ -179,7 +154,7 @@ class TubeSkeletonBuilder:
         self.stop_processing = True
 
 class TreeBuilder:
-    def __init__(self, generator_class='volume', generator_params=None):
+    def __init__(self): #, generator_class='volume', generator_params=None):
         """
         This function can be used as vessel_tree iterator. Just implement generator_class
 
@@ -196,49 +171,33 @@ class TreeBuilder:
         self.segments_progress_callback = self.finish_progress_callback
         self.stop_processing = False
 
-        if generator_class in ['vol', 'volume']:
-            import tb_volume
-            generator_class = tb_volume.TBVolume
-        elif generator_class in ['lar']:
-            import tb_lar
-            generator_class = tb_lar.TBLar
-        elif generator_class in ['vtk']:
-            import tb_vtk
-            generator_class = tb_vtk.TBVTK
-        elif generator_class in ['kunes']:
-            import tb_lar_kunes
-            generator_class = tb_lar_kunes.TBLar
-        elif generator_class in ['larsm']:
-            import tb_lar_smooth
-            generator_class = tb_lar_smooth.TBLarSmooth
-        elif generator_class in ['lar_nojoints']:
-            import tb_lar
-            generator_class = tb_lar.TBLar
-            generator_params = {
-                'endDistMultiplicator': 0,
-                'use_joints': False
-            }
-        self.generator_class = generator_class
-        self.generator_params = generator_params
+        # if generator_class in ['vol', 'volume']:
+        #     from . import tb_volume
+        #     generator_class = tb_volume.TBVolume
+        # elif generator_class in ['lar']:
+        #     from . import tb_lar
+        #     generator_class = tb_lar.TBLar
+        # elif generator_class in ['vtk']:
+        #     from . import tb_vtk
+        #     generator_class = tb_vtk.TBVTK
+        # elif generator_class in ['kunes']:
+        #     from . import tb_lar_kunes
+        #     generator_class = tb_lar_kunes.TBLar
+        # elif generator_class in ['larsm']:
+        #     from . import tb_lar_smooth
+        #     generator_class = tb_lar_smooth.TBLarSmooth
+        # elif generator_class in ['lar_nojoints']:
+        #     from . import tb_lar
+        #     generator_class = tb_lar.TBLar
+        #     generator_params = {
+        #         'endDistMultiplicator': 0,
+        #         'use_joints': False
+        #     }
+        # self.generator_class = generator_class
+        # self.generator_params = generator_params
 
     def fix_tree_structure(self, tree_raw_data):
-        """
-        Fix backward compatibility
-        :param tree_raw_data:
-        :return: fixed tree_raw_data
-        """
-        if 'graph' in tree_raw_data:
-            gr = tree_raw_data.pop('graph')
-            tree_raw_data['Graph'] = gr  # {'tree1':gr}
-
-        # if all keys in Graph a
-        if all([type(k) != str for k in tree_raw_data['Graph'].keys()]):
-            gr = tree_raw_data.pop('Graph')
-            tree_raw_data['Graph'] = {'tree1': gr}
-
-        # else:
-        #     tree_raw_data = tree_raw_data['Graph']
-        return tree_raw_data
+        return fix_tree_structure(tree_raw_data)
 
     def importFromYaml(self, filename):
         import yaml
@@ -247,10 +206,11 @@ class TreeBuilder:
         f.close()
         self.rawdata = self.fix_tree_structure(rawdata)
 
-        tkeys = self.rawdata['Graph'].keys()
+        tkeys = list(self.rawdata['Graph'])
         if (self.tree_label is None) or (self.tree_label not in tkeys):
             self.tree_label = tkeys[0]
-        self.tree_data = self.rawdata['Graph'][self.tree_label]
+        tree_data = self.rawdata['Graph'][self.tree_label]
+        self.tree_data = tree_data
 
     def add_segment_to_tree(self, pointA, pointB, radius, id=None):
         """
@@ -293,6 +253,10 @@ class TreeBuilder:
 
         return tree_output
 
+    def add_cylinder(p1m, p2m, rad, cyl_id):
+        # It is mandatory implement this function
+        pass
+
     def _build_tree_per_segments(self):
         ln = len(self.tree_data)
         if ln == 0:
@@ -317,7 +281,7 @@ class TreeBuilder:
                 p2m = cyl_data['nodeB_ZYX_mm']
                 rad = cyl_data['radius_mm']
                 self.generator.add_cylinder(p1m, p2m, rad, cyl_id)
-            except Exception, e:
+            except Exception as e:
                 # import ipdb; ipdb.set_trace() #  noqa BREAKPOINT
 
                 logger.error(
@@ -404,7 +368,7 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     f.close()
     rawdataf = fix_tree_structure(rawdata)
 
-    tkeys = rawdataf['Graph'].keys()
+    tkeys = list(rawdataf['Graph'])
     if (tree_label is None) or (tree_label not in tkeys):
         tree_label = tkeys[0]
     tube_skeleton = rawdataf['Graph'][tree_label]
@@ -431,7 +395,6 @@ def fix_tree_structure(tree_raw_data):
     # else:
     #     tree_raw_data = tree_raw_data['Graph']
     return tree_raw_data
-
 
 def main():
     logging.basicConfig()

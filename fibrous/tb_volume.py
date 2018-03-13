@@ -18,14 +18,17 @@ sys.path.append(os.path.join(path_to_script, "../extern/dicom2fem/src"))
 import argparse
 import numpy as np
 import scipy.ndimage
-import tree
 
+if sys.version_info.major == 3:
+    xrange = range
+
+from . import tree
 # import datareader
 
-import tb_vtk
+# import tb_vtk
 
-import vtk
-from vtk.util import numpy_support
+# import vtk
+# from vtk.util import numpy_support
 
 # from datetime import datetime
 # import collections
@@ -115,7 +118,7 @@ class TBVolume(tree.TubeSkeletonBuilder):
             except:
                 import traceback
                 traceback.print_exc()
-                print "except in drawing line"
+                print("except in drawing line")
                 logger.warning("Cylinder drawing problem")
                 # import ipdb; ipdb.set_trace() #  noqa BREAKPOINT
 
