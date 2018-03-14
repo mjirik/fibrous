@@ -513,7 +513,8 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
     cylinder_radius_compensation_factor_long, sphere_radius_compensation_factor_long = factors
 
     # import ipdb; ipdb.set_trace()
-    for br in tree_data:
+    print("len tree_data", len(tree_data))
+    for br in tree_data[:]:
         # import ipdb;
         # ipdb.set_trace()
         something_to_add = True
@@ -521,10 +522,18 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
         length = br["length"]
         direction = br["direction"]
         uv = br['upperVertex']
+        print(length, radius, uv, direction, nm.linalg.norm(direction))
+        if direction[1] == 0:
+            print("nula", direction)
+            # direction[1] = -0.1
+            # direction[0] = 1
+            # direction[1] = 0
+            # direction[2] = 0
+            # direction = direction / np.linalg.norm(direction)
+            # direction[1] = -0.1
 
         dbg_msg = "generating edge with length: " + str(br["length"])
         logger.debug(dbg_msg)
-
         # tube = get_tube_old(radius, uv, direction, length,
         if length == 0:
             tube = get_sphere(uv, radius * sphere_radius_compensation_factor, sphere_resolution)
@@ -534,23 +543,27 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
                             cylinder_radius_compensation_factor=cylinder_radius_compensation_factor_long,
                             sphere_radius_compensation_factor=sphere_radius_compensation_factor_long,
                             tube_shape=tube_shape)
+            print("get_tube", something_to_add)
         # this is simple version
         # appendFilter.AddInputData(boolean_operation2.GetOutput())
         # print "object connected, starting addind to general space " + str(br["length"])
         if something_to_add:
             if appended_data is None:
-                #appended_data = boolean_operation2.GetOutput()
+                # appended_data = boolean_operation2.GetOutput()
                 appended_data = tube
+                print("append_tube")
             else:
+                print("booolean")
                 boolean_operation3 = vtk.vtkBooleanOperationPolyDataFilter()
                 boolean_operation3.SetOperationToUnion()
                 boolean_operation3.SetInputData(0, appended_data)
                 boolean_operation3.SetInputData(1, tube)
+                print("before update")
                 boolean_operation3.Update()
                 appended_data = boolean_operation3.GetOutput()
 
     # import ipdb; ipdb.set_trace()
-
+    print("konec")
 
     # del (cylinderTri)
     # del (sphere1Tri)

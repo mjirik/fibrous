@@ -49,6 +49,10 @@ class TBVolume(tree.TubeSkeletonBuilder):
         tree.TubeSkeletonBuilder.__init__(self)
         self.init(**kwargs)
 
+    def init_data3d(self, shape, background_intensity=20, dtype=np.int):
+        self.shape = np.asarray(shape, dtype=np.int)
+        self.data3d = (np.ones(shape, dtype=dtype) * background_intensity).astype(dtype=dtype)
+
     def init(self, tube_skeleton=None, shape=None, voxelsize_mm=None,
              background_intensity=20, dtype=np.int, intensity_profile=None):
 
@@ -58,8 +62,7 @@ class TBVolume(tree.TubeSkeletonBuilder):
         if voxelsize_mm is None:
             voxelsize_mm = [1., 1., 1.]
 
-        self.shape = np.asarray(shape, dtype=np.int)
-        self.data3d = (np.ones(shape, dtype=dtype) * background_intensity).astype(dtype=dtype)
+        self.init_data3d(shape, background_intensity, dtype=dtype)
         self.voxelsize_mm = voxelsize_mm
         if intensity_profile is not None:
             self.intensity_profile = intensity_profile

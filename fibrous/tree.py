@@ -36,6 +36,16 @@ class TubeSkeletonBuilder:
         self.segments_progress_callback = self.finish_progress_callback
         self.stop_processing = False
 
+    def set_model1d(self, model1d, label=None):
+        """
+        Set the 1D model and make compatibility fixtures.
+
+        :param model1d:
+        :param label:
+        :return:
+        """
+        self.tube_skeleton, self.rawdata = pick_model1d(rawdata=model1d, label=label)
+
     def importFromYaml(self, filename):
         tube_skeleton, rawdata = read_tube_skeleton_from_yaml(
             filename=filename,
@@ -170,6 +180,7 @@ class TreeBuilder:
         self.tree_label = None
         self.segments_progress_callback = self.finish_progress_callback
         self.stop_processing = False
+        logger.warning("TreeBuilder is deprecated. Use TubeSkeletonBuilder instead.")
 
         # if generator_class in ['vol', 'volume']:
         #     from . import tb_volume
@@ -197,7 +208,7 @@ class TreeBuilder:
         # self.generator_params = generator_params
 
     def fix_tree_structure(self, tree_raw_data):
-        return fix_tree_structure(tree_raw_data)
+        return backward_compatibility_tree_structure(tree_raw_data)
 
     def importFromYaml(self, filename):
         import yaml
@@ -366,18 +377,32 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     f = open(filename, 'rb')
     rawdata = yaml.load(f)
     f.close()
-    rawdataf = fix_tree_structure(rawdata)
+    tube_skeleton, rawdataf = pick_model1d(rawdata, label=tree_label)
 
-    tkeys = list(rawdataf['Graph'])
-    if (tree_label is None) or (tree_label not in tkeys):
-        tree_label = tkeys[0]
-    tube_skeleton = rawdataf['Graph'][tree_label]
     if return_rawdata:
         return tube_skeleton, rawdataf
     else:
         return tube_skeleton
 
-def fix_tree_structure(tree_raw_data):
+def pick_model1d(rawdata, label=None):
+    """
+    Fix all model problems and pick one of tree based on label.
+
+    :param rawdata: structure with 1D model of fibrous material
+    :param tree_label: select this tree or use the first one.
+    :return: one submodel(based on label) of fibrous 1d model
+    """
+
+
+    rawdataf = backward_compatibility_tree_structure(rawdata)
+
+    tkeys = list(rawdataf['Graph'])
+    if (label is None) or (label not in tkeys):
+        label = tkeys[0]
+    tube_skeleton = rawdataf['Graph'][label]
+    return tube_skeleton, rawdataf
+
+def backward_compatibility_tree_structure(tree_raw_data):
     """
     Fix backward compatibility
     :param tree_raw_data:
@@ -386,6 +411,9 @@ def fix_tree_structure(tree_raw_data):
     if 'graph' in tree_raw_data:
         gr = tree_raw_data.pop('graph')
         tree_raw_data['Graph'] = gr  # {'tree1':gr}
+
+    if "Graph" not in tree_raw_data:
+        tree_raw_data = {"Graph": tree_raw_data}
 
     # if all keys in Graph a
     if all([type(k) != str for k in tree_raw_data['Graph'].keys()]):

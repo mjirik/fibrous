@@ -35,7 +35,6 @@ except:
     larcc_installed = False
     logger.warning("larcc is not working")
 
-import fibrous.tree
 from fibrous.tree import TreeBuilder
 
 # There is some problem with VTK. Code seams to be fine but it fails
@@ -75,7 +74,54 @@ class TubeTreeTest(unittest.TestCase):
         # import ipdb; ipdb.set_trace()
         self.assertTrue(False)
 
-    def test_vessel_tree_vtk_with_new_subclass_vtk(self):
+    def sample_tube_skeleton(self):
+        sample_tube = {
+            1:{
+                "nodeA_ZYX_mm": [0, 30, 20],
+                "nodeB_ZYX_mm": [0, 35, 25],
+                "radius_mm": 3,
+            },
+            2:{
+                "nodeA_ZYX_mm": [0, 30, 20],
+                "nodeB_ZYX_mm": [15, 25, 20],
+                "radius_mm": 3,
+            },
+            3:{
+                "nodeA_ZYX_mm": [10, 10, 20],
+                "nodeB_ZYX_mm": [5, 10, 20],
+                "radius_mm": 3,
+            },
+            # TODO these are failing
+            # 4:{
+            #     "nodeA_ZYX_mm": [10, 10, 20],
+            #     "nodeB_ZYX_mm": [5, 10, 21],
+            #     "radius_mm": 3,
+            # },
+            # 5:{
+            #     "nodeA_ZYX_mm": [10, 10, 20],
+            #     "nodeB_ZYX_mm": [15, 14, 19],
+            #     "radius_mm": 3,
+            # },
+            # 6:{
+            #     "nodeA_ZYX_mm": [10, 10, 20],
+            #     "nodeB_ZYX_mm": [-15, 10, -19],
+            #     "radius_mm": 1,
+            # },
+        }
+        return sample_tube
+
+    def test_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
+        from fibrous.tb_vtk import TBVTK
+        tube_skeleton = self.sample_tube_skeleton()
+        tvg = TBVTK()
+        tvg.set_model1d(model1d=tube_skeleton)
+        # yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        # tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        output = tvg.buildTree()  # noqa
+
+    def test_vessel_tree_vtk_with_new_subclass(self):
         from fibrous.tb_vtk import TBVTK
         tvg = TBVTK()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
@@ -84,14 +130,19 @@ class TubeTreeTest(unittest.TestCase):
         tvg.shape = [100, 100, 100]
         output = tvg.buildTree()  # noqa
 
-    def test_vessel_tree_vtk_with_new_subclass_volume(self):
+    def test_vessel_tree_volume_with_new_subclass(self):
         from fibrous.tb_volume import TBVolume
         tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
-        tvg.voxelsize_mm = [1, 1, 1]
-        tvg.shape = [100, 100, 100]
+        tvg.init_data3d(shape=[100, 100, 100])
         output = tvg.buildTree()  # noqa
+        # import sed3
+        # ed = sed3.sed3(output)
+        # ed.show()
+
+        self.assertEqual(output[50, 20, 20], 200)
+        self.assertEqual(output[5, 5, 5], 0)
 
     # @unittest.skip("test debug")
     # @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
