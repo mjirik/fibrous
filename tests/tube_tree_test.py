@@ -37,6 +37,8 @@ except:
 
 from fibrous.tree import TreeBuilder
 
+from fibrous.tb_vtk import TBVTK
+from fibrous.tb_volume import TBVolume
 # There is some problem with VTK. Code seams to be fine but it fails
 #  Generic Warning: In /tmp/vtk20150408-2435-1y7p97u/VTK-6.2.0/Common/Core/vtkObjectBase.cxx, line 93
 #  Trying to delete object with non-zero reference count.
@@ -111,7 +113,6 @@ class TubeTreeTest(unittest.TestCase):
         return sample_tube
 
     def test_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
-        from fibrous.tb_vtk import TBVTK
         tube_skeleton = self.sample_tube_skeleton()
         tvg = TBVTK()
         tvg.set_model1d(model1d=tube_skeleton)
@@ -120,7 +121,24 @@ class TubeTreeTest(unittest.TestCase):
         tvg.voxelsize_mm = [1, 1, 1]
         tvg.shape = [100, 100, 100]
         output = tvg.buildTree()  # noqa
+        output_file = "test_output.vtk"
+        tvg.saveToFile(output_file)
 
+        self.assertTrue(os.path.exists(output_file))
+
+    def test_vessel_tree_volume_with_new_subclass_on_artifical_sample_data(self):
+        tube_skeleton = self.sample_tube_skeleton()
+        tvg = TBVolume()
+        tvg.set_model1d(model1d=tube_skeleton)
+        # yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        # tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        output = tvg.buildTree()  # noqa
+
+        self.assertTrue(type(output) == np.ndarray)
+
+    @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vtk_with_new_subclass(self):
         from fibrous.tb_vtk import TBVTK
         tvg = TBVTK()
@@ -142,10 +160,28 @@ class TubeTreeTest(unittest.TestCase):
         # ed.show()
 
         self.assertEqual(output[50, 20, 20], 200)
-        self.assertEqual(output[5, 5, 5], 0)
+        self.assertEqual(output[5, 5, 5], 20)
 
-    # @unittest.skip("test debug")
-    # @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
+
+    @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
+    def test_tube_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
+        tube_skeleton = self.sample_tube_skeleton()
+        tvg = TBVTK(tube_shape=True)
+        tvg.set_model1d(model1d=tube_skeleton)
+        # yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        # tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        output = tvg.buildTree()  # noqa
+        output_file = "test_output.vtk"
+        tvg.saveToFile(output_file)
+
+        self.assertTrue(os.path.exists(output_file))
+
+
+
+    @unittest.skip("test debug")
+    @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vtk(self):
         tvg = TreeBuilder('vtk')
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")

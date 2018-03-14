@@ -164,7 +164,7 @@ class TubeSkeletonBuilder:
         self.stop_processing = True
 
 class TreeBuilder:
-    def __init__(self): #, generator_class='volume', generator_params=None):
+    def __init__(self, generator_class='volume', generator_params=None):
         """
         This function can be used as vessel_tree iterator. Just implement generator_class
 
@@ -182,30 +182,30 @@ class TreeBuilder:
         self.stop_processing = False
         logger.warning("TreeBuilder is deprecated. Use TubeSkeletonBuilder instead.")
 
-        # if generator_class in ['vol', 'volume']:
-        #     from . import tb_volume
-        #     generator_class = tb_volume.TBVolume
-        # elif generator_class in ['lar']:
-        #     from . import tb_lar
-        #     generator_class = tb_lar.TBLar
-        # elif generator_class in ['vtk']:
-        #     from . import tb_vtk
-        #     generator_class = tb_vtk.TBVTK
-        # elif generator_class in ['kunes']:
-        #     from . import tb_lar_kunes
-        #     generator_class = tb_lar_kunes.TBLar
-        # elif generator_class in ['larsm']:
-        #     from . import tb_lar_smooth
-        #     generator_class = tb_lar_smooth.TBLarSmooth
-        # elif generator_class in ['lar_nojoints']:
-        #     from . import tb_lar
-        #     generator_class = tb_lar.TBLar
-        #     generator_params = {
-        #         'endDistMultiplicator': 0,
-        #         'use_joints': False
-        #     }
-        # self.generator_class = generator_class
-        # self.generator_params = generator_params
+        if generator_class in ['vol', 'volume']:
+            from . import tb_volume
+            generator_class = tb_volume.TBVolume
+        elif generator_class in ['lar']:
+            from . import tb_lar
+            generator_class = tb_lar.TBLar
+        elif generator_class in ['vtk']:
+            from . import tb_vtk
+            generator_class = tb_vtk.TBVTK
+        elif generator_class in ['kunes']:
+            from . import tb_lar_kunes
+            generator_class = tb_lar_kunes.TBLar
+        elif generator_class in ['larsm']:
+            from . import tb_lar_smooth
+            generator_class = tb_lar_smooth.TBLarSmooth
+        elif generator_class in ['lar_nojoints']:
+            from . import tb_lar
+            generator_class = tb_lar.TBLar
+            generator_params = {
+                'endDistMultiplicator': 0,
+                'use_joints': False
+            }
+        self.generator_class = generator_class
+        self.generator_params = generator_params
 
     def fix_tree_structure(self, tree_raw_data):
         return backward_compatibility_tree_structure(tree_raw_data)

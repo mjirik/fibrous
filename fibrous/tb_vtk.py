@@ -793,8 +793,8 @@ def vt2vtk_file(vessel_tree, outfile, text_label=None):
     tree_data = compatibility_processing(trees[text_label])
     polyData = gen_tree(tree_data)
 
-    import ipdb;
-    ipdb.set_trace()
+    # import ipdb;
+    # ipdb.set_trace()
     writer = vtk.vtkPolyDataWriter()
     writer.SetFileName(outfile)
     try:
