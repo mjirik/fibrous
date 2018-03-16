@@ -38,6 +38,7 @@ requirements:
 
   run:
     - python
+    - pyyaml
     # - numpy
     # - pyqt 4.11.*
 
