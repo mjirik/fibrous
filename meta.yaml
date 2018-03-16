@@ -41,6 +41,7 @@ requirements:
     - numpy
     - vtk
     - pyyaml
+    - scipy
     # - numpy
     # - pyqt 4.11.*
 
