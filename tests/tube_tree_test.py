@@ -355,33 +355,6 @@ class TubeTreeTest(unittest.TestCase):
         tvgvol.saveToFile("tree_volume.pklz")
         # self.assertTrue(False)
 
-    # @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
-    def test_io3d(self):
-        import io3d
-        data3d = np.zeros([10, 10, 10])
-        segmentation = np.zeros([10, 10, 10])
-
-        data3d[2:7, :3:5, :6] = 100
-        datap = {
-            "data3d": data3d,
-            # "segmentation": segmentation,
-            "voxelsize_mm": [1, 1, 1]
-        }
-        io3d.write(datap, "file1.pklz")
-
-    # @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
-    def test_skimage_io_imsave(self):
-        import skimage.io
-        data3d = np.zeros([10, 10, 10])
-        segmentation = np.zeros([10, 10, 10])
-
-        data3d[2:7, :3:5, :6] = 100
-        datap = {
-            "data3d": data3d,
-            # "segmentation": segmentation,
-            "voxelsize_mm": [1, 1, 1]
-        }
-        skimage.io.imsave("skiamge.png", data3d[0])
 
 
 if __name__ == "__main__":
