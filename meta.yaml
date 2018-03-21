@@ -35,6 +35,10 @@ requirements:
   build:
     - python
     - setuptools
+    - numpy
+    - vtk
+    - pyyaml
+    - scipy
 
   run:
     - python
