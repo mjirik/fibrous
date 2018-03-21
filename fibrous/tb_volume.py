@@ -47,6 +47,7 @@ class TBVolume(tree.TubeSkeletonBuilder):
 
         # super(tree.FiberSkeletBuilder, self).__init__()
         tree.TubeSkeletonBuilder.__init__(self)
+        self.set_data3d = True
         self.init(**kwargs)
 
     def init_data3d(self, shape, background_intensity=20, dtype=np.int):
@@ -60,10 +61,12 @@ class TBVolume(tree.TubeSkeletonBuilder):
         if shape is None:
             shape = [100, 100, 100]
         if voxelsize_mm is None:
-            voxelsize_mm = [1., 1., 1.]
+            voxelsize_mm = [1, 1, 1]
 
-        self.init_data3d(shape, background_intensity, dtype=dtype)
-        self.voxelsize_mm = voxelsize_mm
+        self.set_area_sampling(shape=shape, voxelsize_mm=voxelsize_mm, background_intensity=background_intensity,
+                               dtype=dtype)
+        # self.init_data3d(shape, background_intensity, dtype=dtype)
+        # self.voxelsize_mm = voxelsize_mm
         if intensity_profile is not None:
             self.intensity_profile = intensity_profile
         else:

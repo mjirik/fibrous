@@ -17,6 +17,7 @@ import argparse
 import datetime
 import numpy as np
 
+from . import image_manipulation as imma
 
 class TubeSkeletonBuilder:
     def __init__(self):
@@ -29,12 +30,14 @@ class TubeSkeletonBuilder:
         self.rawdata = None
         self.tube_skeleton = None
         self.data3d = None
-        self.voxelsize_mm = [1, 1, 1]
+        self.voxelsize_mm = None
         self.shape = None
         self.use_lar = False
         self.tree_label = None
         self.segments_progress_callback = self.finish_progress_callback
         self.stop_processing = False
+        # some objects derived from this class works with 3D data. In that case set this True.
+        self.set_data3d = False
 
     def set_model1d(self, model1d, label=None):
         """
@@ -45,6 +48,42 @@ class TubeSkeletonBuilder:
         :return:
         """
         self.tube_skeleton, self.rawdata = pick_model1d(rawdata=model1d, label=label)
+
+    def set_area_sampling(
+            self,
+            voxelsize_mm=None,
+            areasize_mm=None,
+            shape=None,
+            data3d=None,
+            set_data3d=None,
+            dtype=None,
+            background_intensity=0,
+
+    ):
+        """
+
+        :param voxelsize_mm:
+        :param areasize_mm:
+        :param shape:
+        :param data3d:
+        :param set_data3d: set self.data3d according to input. Use input data3d if possible, create zeros otherwise.
+        :param data3d: set self.data3d dtype if set_data3d is used
+        :return:
+        """
+
+        if set_data3d is None:
+            set_data3d = self.set_data3d
+        voxelsize_mm, areasize_mm, shape = imma.get_all_area_sampling_parameters(
+            voxelsize_mm, areasize_mm, shape, data3d
+        )
+
+        if data3d is None and set_data3d:
+            data3d = (np.ones(shape, dtype=dtype) * background_intensity).astype(dtype=dtype)
+
+        self.data3d = data3d
+        self.voxelsize_mm = voxelsize_mm
+        self.areasize_mm = areasize_mm
+        self.shape = shape
 
     def importFromYaml(self, filename):
         tube_skeleton, rawdata = read_tube_skeleton_from_yaml(
