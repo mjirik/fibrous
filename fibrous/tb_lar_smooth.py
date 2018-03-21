@@ -22,17 +22,17 @@ import numpy as np
 
 from scipy import mat, cos, sin
 
-from larcc import VIEW, MKPOL, AA, INTERVALS, STRUCT, MAP, PROD
-from larcc import UNITVECT, VECTPROD, PI, SUM, CAT, IDNT, UNITVECT
-from splines import BEZIER, S1, S2, COONSPATCH
+# from larcc import VIEW, MKPOL, AA, INTERVALS, STRUCT, MAP, PROD
+# from larcc import UNITVECT, VECTPROD, PI, SUM, CAT, IDNT, UNITVECT
+# from splines import BEZIER, S1, S2, COONSPATCH
 # from splines import *
 # import mapper
 # import hpc
 # import pyplasm.hpc
 
 
-import geometry3d as g3
-import interpolation_pyplasm as ip
+# import geometry3d as g3
+# import interpolation_pyplasm as ip
 from . import tree
 
 

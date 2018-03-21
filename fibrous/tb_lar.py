@@ -17,13 +17,14 @@ path_to_script = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(path_to_script, "../../lar-cc/lib/py/"))
 import numpy as np
 
-from larcc import VIEW, MKPOL, AA, INTERVALS
-from splines import all
+try:
+    from larcc import VIEW, MKPOL, AA, INTERVALS
+except Exception:
+    logger.warnint("LAR cannot be imported")
 # import mapper
 # from largrid import *
-import tree
+from . import tree
 
-import geometry3d as g3
 
 
 # import warnings
@@ -41,6 +42,7 @@ class TBLar(tree.TubeSkeletonBuilder):
         # input of geometry and topology
         # super(tree.FiberSkeletBuilder, self).__init__()
         tree.TubeSkeletonBuilder.__init__(self)
+        import geometry3d as g3
         self.V = []
         self.CV = []
         self.joints = {}
@@ -71,6 +73,7 @@ class TBLar(tree.TubeSkeletonBuilder):
         nodeB = g3.translate(nodeB, vector,
                              radius * self.endDistMultiplicator)
 
+        # from splines import all
         if all(nodeA == nodeB):
             logger.error("End points are on same place")
 

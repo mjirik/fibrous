@@ -17,13 +17,13 @@ path_to_script = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(path_to_script, "../../lar-cc/lib/py/"))
 import numpy as np
 
-from larcc import VIEW, MKPOL, AA, INTERVALS
-from splines import all
+# from larcc import VIEW, MKPOL, AA, INTERVALS
+# from splines import all
 # import mapper
 # from largrid import *
 
-import geometry3d as g3
-import tree
+# import geometry3d as g3
+from . import tree
 
 
 # import warnings
