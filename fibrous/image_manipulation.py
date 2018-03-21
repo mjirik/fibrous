@@ -25,8 +25,10 @@ def get_all_area_sampling_parameters(
         voxelsize_mm = [1, 1, 1]
     if areasize_px is None and voxelsize_mm is None:
         voxelsize_mm = [1, 1, 1]
+    if voxelsize_mm is None:
+        voxelsize_mm = (np.asarray(areasize_mm) / areasize_px).astype(np.float)
 
-    voxelsize_mm = np.asanyarray(voxelsize_mm)
+    voxelsize_mm = np.asarray(voxelsize_mm, dtype=np.float)
 
     if areasize_mm is None:
         areasize_mm = np.asarray(areasize_px) * voxelsize_mm
