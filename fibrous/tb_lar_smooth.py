@@ -33,7 +33,7 @@ from splines import BEZIER, S1, S2, COONSPATCH
 
 import geometry3d as g3
 import interpolation_pyplasm as ip
-import tree
+from . import tree
 
 
 class TBLarSmooth(tree.TubeSkeletonBuilder):
@@ -165,7 +165,7 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         self.CV.append([ln, ln + 1, ln + 2, ln + 3, ln + 4])
 
     def finish(self):
-        print 'use joints? ', self.use_joints
+        print('use joints? ', self.use_joints)
         if self.use_joints:
             for joint in self.joints.values():
                 # There is more then just one circle in this joint, so it
@@ -196,8 +196,8 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         # left to right
         perp_lr = np.cross(perp, vec1)
 
-        print 'center ', center
-        print 'circle ', circle
+        print('center ', center)
+        print('circle ', circle)
         for vertex_id in circle:
             if ((len(curve_pts_indexes_t) > 0) and
                         (vertex_id - curve_pts_indexes_t[-1]) > 1):
@@ -324,9 +324,6 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
                 energy = this_energy
                 mn_ind = i
                 output = Betacurve_id, Astart, Alphacurve_id, Bstart, i, -1
-
-        print 'output'
-        print output
 
         return output
 
