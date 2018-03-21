@@ -70,6 +70,15 @@ class TubeTreeTest(unittest.TestCase):
         if self.interactiveTests:
             tvg.show()
 
+    def test_import_all(self):
+        import fibrous.image_manipulation
+        import fibrous.tb_lar
+        import fibrous.tb_lar_kunes
+        import fibrous.tb_lar_smooth
+        import fibrous.tb_volume
+        import fibrous.tb_vtk
+        import fibrous.tree
+
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_nothing(self):
         print("skelet3d_installed", skelet3d_installed)

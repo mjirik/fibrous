@@ -17,10 +17,7 @@ path_to_script = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(path_to_script, "../../lar-cc/lib/py/"))
 import numpy as np
 
-try:
-    from larcc import VIEW, MKPOL, AA, INTERVALS
-except Exception:
-    logger.warnint("LAR cannot be imported")
+# from larcc import VIEW, MKPOL, AA, INTERVALS
 # import mapper
 # from largrid import *
 from . import tree
