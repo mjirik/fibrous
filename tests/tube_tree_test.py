@@ -250,7 +250,7 @@ class TubeTreeTest(unittest.TestCase):
     def test_import_new_vt_format(self):
 
         tvg = TreeBuilder()
-        yaml_path = os.path.join(path_to_script, "vt_biodur.yaml")
+        yaml_path = os.path.join(path_to_script, "vt_biodur_simple.yaml")
         tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
         tvg.shape = [150, 150, 150]
@@ -364,6 +364,18 @@ class TubeTreeTest(unittest.TestCase):
         tvgvol.saveToFile("tree_volume.pklz")
         # self.assertTrue(False)
 
+    def test_import_new_vt_format(self):
+        from fibrous.tree import TreeBuilder
+
+        # tvg = TreeBuilder()
+        tvg = TBVolume()
+
+        yaml_path = os.path.join(path_to_script, "vt_biodur_simple.yaml")
+        tvg.importFromYaml(yaml_path)
+        tvg.set_area_sampling(voxelsize_mm=[1,1,1], shape=[150, 150, 150])
+        # tvg.voxelsize_mm = [1, 1, 1]
+        # tvg.shape = [150, 150, 150]
+        data3d = tvg.buildTree()
 
 
 if __name__ == "__main__":

@@ -413,9 +413,17 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     :return:
     """
     import yaml
-    f = open(filename, 'rb')
-    rawdata = yaml.load(f)
-    f.close()
+    import sys
+    from io import open
+    # if sys.version_info.major == 2:
+    #     f = open(filename, 'r')
+    #     rawdata = yaml.load(f)
+    #     f.close()
+    # else:
+
+    with open(filename, encoding="utf-8") as f:
+        intext = f.read()
+        rawdata = yaml.load(intext)
     tube_skeleton, rawdataf = pick_model1d(rawdata, label=tree_label)
 
     if return_rawdata:

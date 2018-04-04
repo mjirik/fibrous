@@ -6246,11 +6246,7 @@ graph:
         start: [42.0, 99.0, 120.0]
         vector: [-11.0, -10.0, 1.0]
       id: 73
-      lengthEstimation: !!python/object/apply:numpy.core.multiarray.scalar
-      - !!python/object/apply:numpy.dtype
-        args: [f8, 0, 1]
-        state: !!python/tuple [3, <, null, null, null, -1, -1, 0]
-      - !!python/str ":M\x86$}2@"
+      lengthEstimation: 20.0
       lengthEstimationPixel: 22.291799782024935
       lengthEstimationPoly: 18.636240439594385
       lengthEstimationSpline: 18.488838598668032
