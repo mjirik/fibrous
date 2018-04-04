@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 import argparse
 import datetime
 import numpy as np
+from io import open
 
 from . import image_manipulation as imma
 
@@ -251,9 +252,9 @@ class TreeBuilder:
 
     def importFromYaml(self, filename):
         import yaml
-        f = open(filename, 'rb')
-        rawdata = yaml.load(f)
-        f.close()
+        with open(filename, encoding="utf-8") as f:
+            intext = f.read()
+            rawdata = yaml.load(intext)
         self.rawdata = self.fix_tree_structure(rawdata)
 
         tkeys = list(self.rawdata['Graph'])
@@ -413,14 +414,6 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     :return:
     """
     import yaml
-    import sys
-    from io import open
-    # if sys.version_info.major == 2:
-    #     f = open(filename, 'r')
-    #     rawdata = yaml.load(f)
-    #     f.close()
-    # else:
-
     with open(filename, encoding="utf-8") as f:
         intext = f.read()
         rawdata = yaml.load(intext)
