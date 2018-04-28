@@ -171,6 +171,17 @@ class TubeTreeTest(unittest.TestCase):
         self.assertEqual(output[50, 20, 20], 200)
         self.assertEqual(output[5, 5, 5], 20)
 
+    def test_get_tree_simple(self):
+        from fibrous.tb_volume import TBVolume
+        tvg = TBVolume()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        tvg.importFromYaml(yaml_path)
+
+        # tvg.init_data3d(shape=[100, 100, 100])
+        # output = tvg.buildTree()  # noqa
+        from fibrous.tb_vtk import gen_tree_simple, compatibility_processing
+        vtk_tree = gen_tree_simple(compatibility_processing(tvg.tube_skeleton))
+        self.assertTrue(vtk_tree is not None)
 
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_tube_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
@@ -377,6 +388,21 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.shape = [150, 150, 150]
         data3d = tvg.buildTree()
 
+    def test_read_portal_vein_data(self):
+        import fibrous.tree
+        from fibrous.tree import TreeBuilder
+
+        # tvg = TreeBuilder()
+        tvg = TBVolume()
+
+        # yaml_path = os.path.join(path_to_script, "vt_biodur_simple.yaml")
+        yaml_path = r"e:/vessel_tree_data/ep_hcc2_porta1d.yaml"
+        tree = fibrous.tree.read_tube_skeleton_from_yaml(yaml_path)
+        # tvg.importFromYaml(yaml_path)
+        # tvg.set_area_sampling(voxelsize_mm=[1,1,1], shape=[150, 150, 150])
+        # tvg.voxelsize_mm = [1, 1, 1]
+        # tvg.shape = [150, 150, 150]
+        # data3d = tvg.buildTree()
 
 if __name__ == "__main__":
     unittest.main()
