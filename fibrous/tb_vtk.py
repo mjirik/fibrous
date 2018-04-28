@@ -6,7 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import numpy as nm
-import yaml
 import argparse
 import sys
 
@@ -656,7 +655,12 @@ def get_tube_old(radius, point, direction, length,
     return retval
 
 
-def gen_tree_old(tree_data):
+def gen_tree_simple(tree_data):
+    """
+    Create cylinder like VTK 1D representation of fibrous structure
+    :param tree_data: list of 1d represation of vessel part with "length", "radius", "upperVertex" and "direction"
+    :return: 1D VTK representation of fibrous structure
+    """
     import vtk
     points = vtk.vtkPoints()
     polyData = vtk.vtkPolyData()
@@ -770,8 +774,13 @@ def vt_file_2_vtk_file(infile, outfile, text_label=None):
     :return:
 
     """
-    yaml_file = open(infile, 'r')
-    tree_raw_data = yaml.load(yaml_file)
+    from ruamel.yaml import YAML
+    yaml = YAML(typ="unsafe")
+    with open(infile, encoding="utf-8") as f:
+        tree_raw_data = yaml.load(f)
+
+    # yaml_file = open(infile, 'r')
+    # tree_raw_data = yaml.load(yaml_file)
     vt2vtk_file(tree_raw_data, outfile, text_label)
 
 
