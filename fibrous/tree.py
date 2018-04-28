@@ -251,10 +251,10 @@ class TreeBuilder:
         return backward_compatibility_tree_structure(tree_raw_data)
 
     def importFromYaml(self, filename):
-        import yaml
+        from ruamel.yaml import YAML
+        yaml = YAML(typ="unsafe")
         with open(filename, encoding="utf-8") as f:
-            intext = f.read()
-            rawdata = yaml.load(intext)
+            rawdata = yaml.load(f)
         self.rawdata = self.fix_tree_structure(rawdata)
 
         tkeys = list(self.rawdata['Graph'])
@@ -413,10 +413,14 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     :param tree_label: label of tree. The first tree is used if None.
     :return:
     """
-    import yaml
+    from ruamel.yaml import YAML
+    yaml = YAML(typ="unsafe")
     with open(filename, encoding="utf-8") as f:
-        intext = f.read()
-        rawdata = yaml.load(intext)
+        rawdata = yaml.load(f)
+    # import yaml
+    # with open(filename, encoding="utf-8") as f:
+    #     intext = f.read()
+    #     rawdata = yaml.load(intext)
     tube_skeleton, rawdataf = pick_model1d(rawdata, label=tree_label)
 
     if return_rawdata:
