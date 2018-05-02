@@ -388,6 +388,7 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.shape = [150, 150, 150]
         data3d = tvg.buildTree()
 
+    @unittest.skipUnless(os.path.exists(r"e:/vessel_tree_data/ep_hcc2_porta1d.yaml"), "data are not available")
     def test_read_portal_vein_data(self):
         import fibrous.tree
         from fibrous.tree import TreeBuilder
