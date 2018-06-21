@@ -37,17 +37,17 @@ requirements:
     - setuptools
     - numpy
     - vtk
-    - pyyaml
     - scipy
+    - ruamel.yaml
 
   run:
     - python
     - numpy
     - vtk
-    - pyyaml
     - scipy
     # - numpy
     # - pyqt 4.11.*
+    - ruamel.yaml
 
 test:
   # Python imports
