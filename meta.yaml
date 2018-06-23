@@ -36,14 +36,14 @@ requirements:
     - python
     - setuptools
     - numpy
-    - vtk!=7.1.0
+    - vtk!=7.1.0,<9 # 9 is there just to be sure that everything works
     - scipy
     - ruamel.yaml
 
   run:
     - python
     - numpy
-    - vtk!=7.1.0
+    - vtk!=7.1.0,<9
     - scipy
     # - numpy
     # - pyqt 4.11.*
