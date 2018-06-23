@@ -183,6 +183,34 @@ class TubeTreeTest(unittest.TestCase):
         vtk_tree = gen_tree_simple(compatibility_processing(tvg.tube_skeleton))
         self.assertTrue(vtk_tree is not None)
 
+    def test_synthetic_volumetric_data_generation(self):
+        """
+        Generovani umeleho stromu do 3D a jeho evaluace.
+        V testu dochazi ke kontrole predpokladaneho objemu a deky cev
+
+
+        """
+        # from skelet3d.tree import TreeGenerator
+        # from fibrous.tree import TubeSkeletonBuilder as TreeGenerator
+        # from fibrous.tree import TreeBuilder as TreeGenerator
+        from fibrous.tb_volume import TBVolume as TreeGenerator
+        # print("zacatek podezreleho testu")
+        # import segmentation
+        # import misc
+
+        # generate 3d data from yaml for testing
+        tvg = TreeGenerator()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        tvg.importFromYaml(yaml_path)
+        tvg.set_area_sampling(voxelsize_mm=[1, 1, 1], shape=[100, 101, 102])
+        # tvg.voxelsize_mm = [1, 1, 1]
+        # tvg.shape = [100, 100, 100]
+        # data3d = tvg.generateTree()
+        data3d = tvg.buildTree()
+        self.assertEqual(data3d.shape[0], 100)
+        self.assertEqual(data3d.shape[1], 101)
+        self.assertEqual(data3d.shape[2], 102)
+
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_tube_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
         tube_skeleton = self.sample_tube_skeleton()
