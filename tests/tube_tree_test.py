@@ -179,9 +179,40 @@ class TubeTreeTest(unittest.TestCase):
 
         # tvg.init_data3d(shape=[100, 100, 100])
         # output = tvg.buildTree()  # noqa
-        from fibrous.tb_vtk import gen_tree_simple, compatibility_processing
-        vtk_tree = gen_tree_simple(compatibility_processing(tvg.tube_skeleton))
+        from fibrous.tb_vtk import gen_tree_simple
+        from fibrous.tree import single_tree_compatibility_to_old
+        vtk_tree = gen_tree_simple(single_tree_compatibility_to_old(tvg.tube_skeleton))
         self.assertTrue(vtk_tree is not None)
+
+    def test_get_vt_from_file_and_save_it_to_vtk(self):
+        import fibrous.tb_vtk
+        fn="output.vtk"
+
+        if os.path.exists(fn):
+            os.remove(fn)
+
+        tvg = TBVolume()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=True)
+
+
+        self.assertTrue(os.path.exists(fn))
+
+    @unittest.skip("This test is always failing from unknownd reason")
+    def test_get_vt_from_file_and_save_it_to_vtk_with_not_simple_method(self):
+        # TODO findout what is wrong with VTK export with boolean operations
+        import fibrous.tb_vtk
+        fn="output.vtk"
+
+        if os.path.exists(fn):
+            os.remove(fn)
+
+        tvg = TBVolume()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=False)
+
+
+        self.assertTrue(os.path.exists(fn))
 
     def test_synthetic_volumetric_data_generation(self):
         """

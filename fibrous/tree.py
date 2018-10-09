@@ -405,6 +405,7 @@ def parse_area_properties(rawdata):
     area["areasize_mm"] = np.asarray(area["areasize_px"]) * np.asarray(area["voxelsize_mm"])
     return area
 
+
 def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False):
     """ Get tube skeleton and raw data from yaml file.
 
@@ -428,6 +429,7 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     else:
         return tube_skeleton
 
+
 def pick_model1d(rawdata, label=None):
     """
     Fix all model problems and pick one of tree based on label.
@@ -437,7 +439,6 @@ def pick_model1d(rawdata, label=None):
     :return: one submodel(based on label) of fibrous 1d model
     """
 
-
     rawdataf = backward_compatibility_tree_structure(rawdata)
 
     tkeys = list(rawdataf['Graph'])
@@ -445,6 +446,7 @@ def pick_model1d(rawdata, label=None):
         label = tkeys[0]
     tube_skeleton = rawdataf['Graph'][label]
     return tube_skeleton, rawdataf
+
 
 def backward_compatibility_tree_structure(tree_raw_data):
     """
@@ -466,7 +468,89 @@ def backward_compatibility_tree_structure(tree_raw_data):
 
     # else:
     #     tree_raw_data = tree_raw_data['Graph']
+    for tree_label in tree_raw_data["Graph"]:
+        one_tree = tree_raw_data["Graph"][tree_label]
+        tree_raw_data["Graph"][tree_label] = single_tree_compatibility(one_tree)
+
     return tree_raw_data
+
+
+def single_tree_compatibility(indata):
+
+    for key in indata:
+        ii = indata[key]
+        if "upperVertexXYZmm" in ii.keys():
+            ii["nodeA_ZYX_mm"] = ii["upperVertexXYZmm"]
+        if "lowerVertexXYZmm" in ii.keys():
+            ii["nodeB_ZYX_mm"] = ii["lowerVertexXYZmm"]
+        if "radius" in ii.keys():
+            ii["radius_mm"] = ii["radius"]
+    return indata
+
+
+def single_tree_compatibility_to_old(indata):
+    scale = 1e-3
+    scale = 1
+
+    outdata = {}
+    for key in indata:
+        ii = indata[key]
+        # logger.debug(ii)
+        br = {}
+
+        lengthEstimation = None
+        try:
+            # old version of yaml tree
+            vA = ii['upperVertexXYZmm']
+            vB = ii['lowerVertexXYZmm']
+            radi = ii['radius']
+            lengthEstimation = ii['length']
+        except:
+            # new version of yaml
+            try:
+                vA = ii['nodeA_ZYX_mm']
+                vB = ii['nodeB_ZYX_mm']
+                radi = ii['radius_mm']
+                if "lengthEstimation" in ii.keys():
+                    lengthEstimation = ii['lengthEstimation']
+            except:
+                import traceback
+                logger.debug(traceback.format_exc())
+                continue
+
+        br['upperVertex'] = np.array(vA) * scale
+        br['radius'] = radi * scale
+        if lengthEstimation is None:
+
+            br['real_length'] = None
+        else:
+            br['real_length'] = lengthEstimation * scale
+
+        vv = np.array(vB) * scale - br['upperVertex']
+        br['direction'] = vv / np.linalg.norm(vv)
+        br['length'] = np.linalg.norm(vv)
+        outdata[key] = br
+        # outdata.append(br)
+
+    return outdata
+
+def single_tree_into_list(indata):
+    """
+    Turn the fibrous tree based on dict into tree based on list.
+    :param indata:
+    :return:
+    """
+    scale = 1e-3
+    scale = 1
+
+    outdata = []
+    for key in indata:
+        ii = indata[key]
+        outdata.append(ii)
+
+    return outdata
+
+
 
 def main():
     logging.basicConfig()

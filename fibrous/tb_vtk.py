@@ -32,7 +32,9 @@ class TBVTK(tree.TubeSkeletonBuilder):
                  cylinder_radius_compensation_factor=1.0,
                  sphere_radius_compensation_factor=1.0,
                  # tube_shape=True
-                 tube_shape=False
+                 tube_shape=False,
+                 # one_object_on_output=True
+                 use_simple_cylinder_method=False,
                  ):
         """
 
@@ -44,7 +46,11 @@ class TBVTK(tree.TubeSkeletonBuilder):
         :param sphere_radius_compensation_factor:
         :param tube_shape: If true, the tube shape is generated.
                 Otherwise the cylinder shape is used.
+        :param use_simple_cylinder_method: use stable and simple method. Usefull for visualization
+        :param use_old
         """
+        # :param one_object_on_output: use boolean operation to put all objects together. There are stability issues if
+        # this option is used.
         # self.shape = gtree.shape
         # self.data3d = np.zeros(gtree.shape, dtype=np.int)
         # self.voxelsize_mm = gtree.voxelsize_mm
@@ -60,6 +66,8 @@ class TBVTK(tree.TubeSkeletonBuilder):
         self.sphere_resolution = sphere_resolution
         logger.debug("tube shape " + str(tube_shape))
         self.tube_shape = tube_shape
+        # self.one_object_on_output = one_object_on_output
+        self.use_simple_cylinder_method = use_simple_cylinder_method
 
     def add_cylinder(self, p1m, p2m, rad, id):
         """
@@ -68,15 +76,22 @@ class TBVTK(tree.TubeSkeletonBuilder):
         pass
 
     def finish(self):
-        self.tube_skeleton_old = compatibility_processing(self.tube_skeleton)
+        from .tree import single_tree_compatibility_to_old
+        self.tube_skeleton_old = single_tree_compatibility_to_old(self.tube_skeleton)
         # import ipdb; ipdb.set_trace()
-        self.polyData = gen_tree(
-            self.tube_skeleton_old, self.cylinder_resolution, self.sphere_resolution,
-            polygon_radius_selection_method=self.polygon_radius_selection_method,
-            cylinder_radius_compensation_factor=self.cylinder_radius_compensation_factor,
-            sphere_radius_compensation_factor=self.sphere_radius_compensation_factor,
-            tube_shape=self.tube_shape
-        )
+        if self.use_simple_cylinder_method:
+            self.polyData = gen_tree_simple(self.tube_skeleton_old)
+            pass
+        else:
+
+            self.polyData = gen_tree(
+                self.tube_skeleton_old, self.cylinder_resolution, self.sphere_resolution,
+                polygon_radius_selection_method=self.polygon_radius_selection_method,
+                cylinder_radius_compensation_factor=self.cylinder_radius_compensation_factor,
+                sphere_radius_compensation_factor=self.sphere_radius_compensation_factor,
+                tube_shape=self.tube_shape
+            )
+
         # import ipdb; ipdb.set_trace()
 
     def get_output(self):
@@ -119,9 +134,11 @@ def move_to_position(src, upper, direction, axis0=2, axis1=1, axis2=0):
     rot1 = vtk.vtkTransform()
     fi = nm.arccos(direction[axis1])
 
+
     rot1.RotateWXYZ(-nm.rad2deg(fi), r1[0], r1[1], r1[2])
     u = nm.abs(nm.sin(fi))
     rot2 = vtk.vtkTransform()
+    psi = 0
     if u > 1.0e-6:
 
         # sometimes d[0]/u little bit is over 1
@@ -137,7 +154,9 @@ def move_to_position(src, upper, direction, axis0=2, axis1=1, axis2=0):
         if direction[axis0] < 0:
             psi = 2 * nm.pi - psi
 
-        rot2.RotateWXYZ(-nm.rad2deg(psi), r2[0], r2[1], r2[2])
+        # if psi is zero, no transformation is required. (It causes sisegv fail if it is performed)
+        if psi > 0:
+            rot2.RotateWXYZ(-nm.rad2deg(psi), r2[0], r2[1], r2[2])
 
     tl = vtk.vtkTransform()
     tl.Translate(upper)
@@ -149,13 +168,16 @@ def move_to_position(src, upper, direction, axis0=2, axis1=1, axis2=0):
         tr1a.SetInput(src.GetOutput())
     tr1a.SetTransform(rot1)
 
-    tr1b = vtk.vtkTransformFilter()
-    if "SetInputConnection" in dir(tr1b):
-        tr1b.SetInputConnection(tr1a.GetOutputPort())
+    if psi == 0:
+        tr1b = tr1a
     else:
-        tr1b.SetInput(tr1a.GetOutput())
-    # tr1b.SetInput(tr1a.GetOutput())
-    tr1b.SetTransform(rot2)
+        tr1b = vtk.vtkTransformFilter()
+        if "SetInputConnection" in dir(tr1b):
+            tr1b.SetInputConnection(tr1a.GetOutputPort())
+        else:
+            tr1b.SetInput(tr1a.GetOutput())
+        # tr1b.SetInput(tr1a.GetOutput())
+        tr1b.SetTransform(rot2)
 
     tr2 = vtk.vtkTransformFilter()
     if "SetInputConnection" in dir(tr2):
@@ -521,9 +543,10 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
         length = br["length"]
         direction = br["direction"]
         uv = br['upperVertex']
-        print(length, radius, uv, direction, nm.linalg.norm(direction))
+        print("gen_tree vtk ", length, radius, uv, direction, nm.linalg.norm(direction))
         if direction[1] == 0:
-            print("nula", direction)
+            print("Zero direction in axis[1]", direction)
+            logger.debug("Zero direction in axis[1]")
             # direction[1] = -0.1
             # direction[0] = 1
             # direction[1] = 0
@@ -542,7 +565,7 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
                             cylinder_radius_compensation_factor=cylinder_radius_compensation_factor_long,
                             sphere_radius_compensation_factor=sphere_radius_compensation_factor_long,
                             tube_shape=tube_shape)
-            print("get_tube", something_to_add)
+            print("something_to_add", something_to_add)
         # this is simple version
         # appendFilter.AddInputData(boolean_operation2.GetOutput())
         # print "object connected, starting addind to general space " + str(br["length"])
@@ -560,6 +583,7 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
                 print("before update")
                 boolean_operation3.Update()
                 appended_data = boolean_operation3.GetOutput()
+                print("after update")
 
     # import ipdb; ipdb.set_trace()
     print("konec")
@@ -574,6 +598,7 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
     # appendFilter.Update()
     # appended_data = appendFilter.GetOutput()
     return appended_data
+
 
 def get_tube_old(radius, point, direction, length,
                  sphere_resolution, cylinder_resolution,
@@ -710,52 +735,6 @@ def gen_tree_simple(tree_data):
     return polyData
 
 
-def compatibility_processing(indata):
-    scale = 1e-3
-    scale = 1
-
-    outdata = []
-    for key in indata:
-        ii = indata[key]
-        # logger.debug(ii)
-        br = {}
-
-        lengthEstimation = None
-        try:
-            # old version of yaml tree
-            vA = ii['upperVertexXYZmm']
-            vB = ii['lowerVertexXYZmm']
-            radi = ii['radius']
-            lengthEstimation = ii['length']
-        except:
-            # new version of yaml
-            try:
-                vA = ii['nodeA_ZYX_mm']
-                vB = ii['nodeB_ZYX_mm']
-                radi = ii['radius_mm']
-                if "lengthEstimation" in ii.keys():
-                    lengthEstimation = ii['lengthEstimation']
-            except:
-                import traceback
-                logger.debug(traceback.format_exc())
-                continue
-
-        br['upperVertex'] = nm.array(vA) * scale
-        br['radius'] = radi * scale
-        if lengthEstimation is None:
-
-            br['real_length'] = None
-        else:
-            br['real_length'] = lengthEstimation * scale
-
-        vv = nm.array(vB) * scale - br['upperVertex']
-        br['direction'] = vv / nm.linalg.norm(vv)
-        br['length'] = nm.linalg.norm(vv)
-        outdata.append(br)
-
-    return outdata
-
-
 def fix_tree_structure(tree_raw_data):
     if 'graph' in tree_raw_data:
         trees = tree_raw_data['graph']
@@ -764,7 +743,7 @@ def fix_tree_structure(tree_raw_data):
     return trees
 
 
-def vt_file_2_vtk_file(infile, outfile, text_label=None):
+def vt_file_2_vtk_file(infile, outfile, text_label=None, tube_shape=True, use_simple_cylinder_method=False):
     """
     From vessel_tree.yaml to output.vtk
 
@@ -781,10 +760,10 @@ def vt_file_2_vtk_file(infile, outfile, text_label=None):
 
     # yaml_file = open(infile, 'r')
     # tree_raw_data = yaml.load(yaml_file)
-    vt2vtk_file(tree_raw_data, outfile, text_label)
+    vt2vtk_file(tree_raw_data, outfile, text_label, tube_shape=tube_shape, use_simple_cylinder_method=use_simple_cylinder_method)
 
 
-def vt2vtk_file(vessel_tree, outfile, text_label=None):
+def vt2vtk_file(vessel_tree, outfile, text_label=None, tube_shape=True, use_simple_cylinder_method=False):
     """
     vessel_tree structure
     :param vessel_tree:  vt structure
@@ -793,14 +772,20 @@ def vt2vtk_file(vessel_tree, outfile, text_label=None):
     :return:
     """
     import vtk
-    trees = fix_tree_structure(vessel_tree)
+    from . import tree
+    # trees = fix_tree_structure(vessel_tree)
+    trees_with_all = tree.backward_compatibility_tree_structure(vessel_tree)
 
-    tkeys = trees.keys()
+    tkeys = trees_with_all["Graph"].keys()
     if text_label is None:
-        text_label = tkeys[0]
+        text_label = list(tkeys)[0]
 
-    tree_data = compatibility_processing(trees[text_label])
-    polyData = gen_tree(tree_data)
+    tree_data = trees_with_all["Graph"][text_label]
+
+    if use_simple_cylinder_method:
+        polyData = gen_tree_simple(tree_data)
+    else:
+        polyData = gen_tree(tree_data, tube_shape=tube_shape)
 
     # import ipdb;
     # ipdb.set_trace()
