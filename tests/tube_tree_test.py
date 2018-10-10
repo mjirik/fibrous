@@ -195,7 +195,6 @@ class TubeTreeTest(unittest.TestCase):
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=True)
 
-
         self.assertTrue(os.path.exists(fn))
 
     @unittest.skip("This test is always failing from unknownd reason")
