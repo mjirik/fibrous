@@ -14,6 +14,7 @@ if sys.version_info.major == 3:
 import numpy as np
 import vtk
 from scipy.interpolate import InterpolatedUnivariateSpline
+from io import open
 from . import tree
 
 # new interface
