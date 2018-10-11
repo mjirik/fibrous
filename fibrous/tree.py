@@ -493,7 +493,7 @@ def single_tree_compatibility_to_new(indata):
 
 
 def single_tree_compatibility_to_old(indata):
-    scale = 1e-3
+    # scale = 1e-3
     scale = 1
 
     # outdata = {}
