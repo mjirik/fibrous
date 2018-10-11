@@ -477,6 +477,10 @@ def compatibility_whole_tree_structure_to_new(tree_raw_data):
 
 def single_tree_compatibility_to_new(indata):
 
+    if type(indata) == dict:
+        logger.info("Convert from new to new")
+        return indata
+
     for key in indata:
         ii = indata[key]
         if "upperVertexXYZmm" in ii.keys():
@@ -494,7 +498,7 @@ def single_tree_compatibility_to_old(indata):
 
     # outdata = {}
     if type(indata) == list:
-        logger.warning("Convert from old to old")
+        logger.info("Convert from old to old")
         return indata
 
     outdata = []
