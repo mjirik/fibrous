@@ -77,15 +77,15 @@ class TBVTK(tree.TubeSkeletonBuilder):
 
     def finish(self):
         from .tree import single_tree_compatibility_to_old
-        self.tube_skeleton_old = single_tree_compatibility_to_old(self.tube_skeleton)
+        # self.tube_skeleton_old = single_tree_compatibility_to_old(self.tube_skeleton)
         # import ipdb; ipdb.set_trace()
         if self.use_simple_cylinder_method:
-            self.polyData = gen_tree_simple(self.tube_skeleton_old)
+            self.polyData = gen_tree_simple(self.tube_skeleton)
             pass
         else:
 
             self.polyData = gen_tree(
-                self.tube_skeleton_old, self.cylinder_resolution, self.sphere_resolution,
+                self.tube_skeleton, self.cylinder_resolution, self.sphere_resolution,
                 polygon_radius_selection_method=self.polygon_radius_selection_method,
                 cylinder_radius_compensation_factor=self.cylinder_radius_compensation_factor,
                 sphere_radius_compensation_factor=self.sphere_radius_compensation_factor,
@@ -511,12 +511,13 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
         "compensation factors"
         "cylinder volume"
         "cylinder surface"
-    :param tree_data:
+    :param tree_data: new or old format
     :param cylinder_resolution:
     :param sphere_resolution:
     :param cylinder_radius_compensation_factor: is used to change radius of cylinder and spheres
     :return:
     """
+    tree_data_old = tree.single_tree_compatibility_to_old(tree_data)
     import vtk
     # appendFilter = vtk.vtkAppendPolyData()
     appended_data = None
@@ -534,8 +535,11 @@ def gen_tree(tree_data, cylinder_resolution=10, sphere_resolution=10,
     cylinder_radius_compensation_factor_long, sphere_radius_compensation_factor_long = factors
 
     # import ipdb; ipdb.set_trace()
-    print("len tree_data", len(tree_data))
-    for br in tree_data[:]:
+    print("len tree_data", len(tree_data_old))
+    for br in tree_data_old:
+
+        # br = tree_data_old[key]
+
         # import ipdb;
         # ipdb.set_trace()
         something_to_add = True
@@ -683,9 +687,10 @@ def get_tube_old(radius, point, direction, length,
 def gen_tree_simple(tree_data):
     """
     Create cylinder like VTK 1D representation of fibrous structure
-    :param tree_data: list of 1d represation of vessel part with "length", "radius", "upperVertex" and "direction"
+    :param tree_data: list of 1d represation of vessel part with "length", "radius", "upperVertex" and "direction". Old or new format accepted
     :return: 1D VTK representation of fibrous structure
     """
+    tree_data_old = tree.single_tree_compatibility_to_old(tree_data)
     import vtk
     points = vtk.vtkPoints()
     polyData = vtk.vtkPolyData()
@@ -693,7 +698,8 @@ def gen_tree_simple(tree_data):
     polyData.SetPoints(points)
     poffset = 0
 
-    for br in tree_data:
+
+    for br in tree_data_old:
         logger.debug("generating edge " + str(br["length"]))
         cyl = get_cylinder(br['upperVertex'],
                            br['length'],
@@ -774,13 +780,15 @@ def vt2vtk_file(vessel_tree, outfile, text_label=None, tube_shape=True, use_simp
     import vtk
     from . import tree
     # trees = fix_tree_structure(vessel_tree)
-    trees_with_all = tree.backward_compatibility_tree_structure(vessel_tree)
+    trees_with_all = tree.compatibility_whole_tree_structure_to_new(vessel_tree)
 
     tkeys = trees_with_all["Graph"].keys()
     if text_label is None:
         text_label = list(tkeys)[0]
 
     tree_data = trees_with_all["Graph"][text_label]
+
+    # tree_data_old = tree.single_tree_compatibility_to_old(tree_data)
 
     if use_simple_cylinder_method:
         polyData = gen_tree_simple(tree_data)

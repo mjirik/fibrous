@@ -180,8 +180,8 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.init_data3d(shape=[100, 100, 100])
         # output = tvg.buildTree()  # noqa
         from fibrous.tb_vtk import gen_tree_simple
-        from fibrous.tree import single_tree_compatibility_to_old
-        vtk_tree = gen_tree_simple(single_tree_compatibility_to_old(tvg.tube_skeleton))
+        # from fibrous.tree import single_tree_compatibility_to_old
+        vtk_tree = gen_tree_simple(tvg.tube_skeleton)
         self.assertTrue(vtk_tree is not None)
 
     def test_get_vt_from_file_and_save_it_to_vtk(self):
@@ -191,7 +191,7 @@ class TubeTreeTest(unittest.TestCase):
         if os.path.exists(fn):
             os.remove(fn)
 
-        tvg = TBVolume()
+        # tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=True)
 

@@ -248,7 +248,7 @@ class TreeBuilder:
         self.generator_params = generator_params
 
     def fix_tree_structure(self, tree_raw_data):
-        return backward_compatibility_tree_structure(tree_raw_data)
+        return compatibility_whole_tree_structure_to_new(tree_raw_data)
 
     def importFromYaml(self, filename):
         from ruamel.yaml import YAML
@@ -439,7 +439,7 @@ def pick_model1d(rawdata, label=None):
     :return: one submodel(based on label) of fibrous 1d model
     """
 
-    rawdataf = backward_compatibility_tree_structure(rawdata)
+    rawdataf = compatibility_whole_tree_structure_to_new(rawdata)
 
     tkeys = list(rawdataf['Graph'])
     if (label is None) or (label not in tkeys):
@@ -448,7 +448,7 @@ def pick_model1d(rawdata, label=None):
     return tube_skeleton, rawdataf
 
 
-def backward_compatibility_tree_structure(tree_raw_data):
+def compatibility_whole_tree_structure_to_new(tree_raw_data):
     """
     Fix backward compatibility
     :param tree_raw_data:
@@ -470,21 +470,21 @@ def backward_compatibility_tree_structure(tree_raw_data):
     #     tree_raw_data = tree_raw_data['Graph']
     for tree_label in tree_raw_data["Graph"]:
         one_tree = tree_raw_data["Graph"][tree_label]
-        tree_raw_data["Graph"][tree_label] = single_tree_compatibility(one_tree)
+        tree_raw_data["Graph"][tree_label] = single_tree_compatibility_to_new(one_tree)
 
     return tree_raw_data
 
 
-def single_tree_compatibility(indata):
+def single_tree_compatibility_to_new(indata):
 
     for key in indata:
         ii = indata[key]
         if "upperVertexXYZmm" in ii.keys():
-            ii["nodeA_ZYX_mm"] = ii["upperVertexXYZmm"]
+            ii["nodeA_ZYX_mm"] = ii.pop("upperVertexXYZmm")
         if "lowerVertexXYZmm" in ii.keys():
-            ii["nodeB_ZYX_mm"] = ii["lowerVertexXYZmm"]
+            ii["nodeB_ZYX_mm"] = ii.pop("lowerVertexXYZmm")
         if "radius" in ii.keys():
-            ii["radius_mm"] = ii["radius"]
+            ii["radius_mm"] = ii.pop("radius")
     return indata
 
 
@@ -492,9 +492,15 @@ def single_tree_compatibility_to_old(indata):
     scale = 1e-3
     scale = 1
 
-    outdata = {}
+    # outdata = {}
+    if type(indata) == list:
+        logger.warning("Convert from old to old")
+        return indata
+
+    outdata = []
     for key in indata:
-        ii = indata[key]
+        # ii = indata[key]
+        ii = key
         # logger.debug(ii)
         br = {}
 
@@ -529,8 +535,8 @@ def single_tree_compatibility_to_old(indata):
         vv = np.array(vB) * scale - br['upperVertex']
         br['direction'] = vv / np.linalg.norm(vv)
         br['length'] = np.linalg.norm(vv)
-        outdata[key] = br
-        # outdata.append(br)
+        # outdata[key] = br
+        outdata.append(br)
 
     return outdata
 
