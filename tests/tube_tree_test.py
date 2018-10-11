@@ -122,6 +122,10 @@ class TubeTreeTest(unittest.TestCase):
         return sample_tube
 
     def test_vessel_tree_vtk_with_new_subclass_on_artifical_sample_data(self):
+        output_file = "test_output.vtk"
+        if os.path.exists(output_file):
+            os.remove(output_file)
+
         tube_skeleton = self.sample_tube_skeleton()
         tvg = TBVTK()
         tvg.set_model1d(model1d=tube_skeleton)
@@ -130,7 +134,6 @@ class TubeTreeTest(unittest.TestCase):
         tvg.voxelsize_mm = [1, 1, 1]
         tvg.shape = [100, 100, 100]
         output = tvg.buildTree()  # noqa
-        output_file = "test_output.vtk"
         tvg.saveToFile(output_file)
 
         self.assertTrue(os.path.exists(output_file))

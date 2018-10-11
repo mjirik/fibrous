@@ -491,6 +491,7 @@ def single_tree_compatibility_to_new(indata):
             ii["radius_mm"] = ii.pop("radius")
     return indata
 
+# def __single_tube_compatibility_to_old(item):
 
 def single_tree_compatibility_to_old(indata):
     # scale = 1e-3
@@ -503,26 +504,26 @@ def single_tree_compatibility_to_old(indata):
 
     outdata = []
     for key in indata:
-        # ii = indata[key]
-        ii = key
+        item = key
+        item = indata[key]
         # logger.debug(ii)
         br = {}
 
         lengthEstimation = None
         try:
             # old version of yaml tree
-            vA = ii['upperVertexXYZmm']
-            vB = ii['lowerVertexXYZmm']
-            radi = ii['radius']
-            lengthEstimation = ii['length']
+            vA = item['upperVertexXYZmm']
+            vB = item['lowerVertexXYZmm']
+            radi = item['radius']
+            lengthEstimation = item['length']
         except:
             # new version of yaml
             try:
-                vA = ii['nodeA_ZYX_mm']
-                vB = ii['nodeB_ZYX_mm']
-                radi = ii['radius_mm']
-                if "lengthEstimation" in ii.keys():
-                    lengthEstimation = ii['lengthEstimation']
+                vA = item['nodeA_ZYX_mm']
+                vB = item['nodeB_ZYX_mm']
+                radi = item['radius_mm']
+                if "lengthEstimation" in item.keys():
+                    lengthEstimation = item['lengthEstimation']
             except:
                 import traceback
                 logger.debug(traceback.format_exc())
