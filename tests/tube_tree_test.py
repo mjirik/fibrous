@@ -276,7 +276,7 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     @unittest.skipIf(not ("skelet3d" in sys.modules), "skelet3d is not installed")
     @unittest.skipIf(not skelet3d_installed, "skelet3d is not installed")
-    def test_vessel_tree_vtk_from_skeleton(self):
+    def test_vessel_tree_vtk_from_skeleton_failing(self):
         print("skelet3d_installed", skelet3d_installed)
 
         import skelet3d
@@ -296,13 +296,91 @@ class TubeTreeTest(unittest.TestCase):
         skan = skelet3d.skeleton_analyser.SkeletonAnalyser(skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1])
         stats = skan.skeleton_analysis()
 
-        tvg = TreeBuilder('vtk')
+        # tvg = TreeBuilder('vtk')
+        tvg = TBVTK()
+        tvg.set_model1d(stats)
         tvg.voxelsize_mm = [1, 1, 1]
         tvg.shape = [100, 100, 100]
         tvg.tree_data = stats
         output = tvg.buildTree()  # noqa
         tvg.saveToFile(fn_out)
         os.path.exists(fn_out)
+
+    # @unittest.skipIf(not skelet3d_installed, "skelet3d is not installed")
+    def test_vessel_tree_vtk_from_skeleton_of_one_tube(self):
+        print("skelet3d_installed", skelet3d_installed)
+
+        import skelet3d
+        import skelet3d.skeleton_analyser
+        import shutil
+
+        fn_out = 'tree_one_tube.vtk'
+        if os.path.exists(fn_out):
+            os.remove(fn_out)
+
+        volume_data = np.zeros([7, 8, 9], dtype=np.int)
+        volume_data[4:8, 4:6, 1:3] = 1
+        volume_data[:, 5, 2:9] = 1
+        volume_data[:, 0:7, 5] = 1
+        skelet = skelet3d.skelet3d(volume_data)
+
+        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1])
+        stats = skan.skeleton_analysis()
+
+        self.assertEqual(len(stats), 1, "There should be just one cylinder based on data with different diameter")
+        # tvg = TreeBuilder('vtk')
+        tvg = TBVTK()
+        tvg.set_model1d(stats)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        tvg.tree_data = stats
+        output = tvg.buildTree()  # noqa
+        tvg.saveToFile(fn_out)
+        self.assertTrue(os.path.exists(fn_out))
+
+    @unittest.skipIf(not skelet3d_installed, "skelet3d is not installed")
+    @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
+    def test_vessel_tree_vtk_from_skeleton_with_more_tubes(self):
+        """Test dont fail but there is no right output in vtk file"""
+        print("skelet3d_installed", skelet3d_installed)
+
+        import skelet3d
+        import skelet3d.skeleton_analyser
+        import shutil
+
+        fn_out = 'tree_more_tubes.vtk'
+        if os.path.exists(fn_out):
+            os.remove(fn_out)
+
+        volume_data = np.zeros([20, 21, 22], dtype=np.int8)
+        # croess
+        volume_data[8:11, 14:17, 4:14] = 1
+        volume_data[9:15, 11:15, 9:19] = 1
+        volume_data[8:12, 5:9, 4:14] = 1
+        volume_data[9:15, 2:7, 9:19] = 1
+        # volume_data[10:12, 2:15, 13] = 1
+        # volume_data[11:13, 5:12, 14] = 1
+        # volume_data[12:14, 16, 13] = 1
+        skelet = skelet3d.skelet3d(volume_data)
+
+        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(
+            skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1],
+            cut_wrong_skeleton=False
+        )
+        stats = skan.skeleton_analysis()
+
+        # self.assertEqual(len(stats), 1, "There should be just one cylinder based on data with different diameter")
+        # tvg = TreeBuilder('vtk')
+        tvg = TBVTK()
+        tvg.set_model1d(stats)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        tvg.tree_data = stats
+        output = tvg.buildTree()  # noqa
+        tvg.saveToFile(fn_out)
+        self.assertTrue(os.path.exists(fn_out))
+
+
 
     # TODO finish this test
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
