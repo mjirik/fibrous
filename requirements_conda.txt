@@ -1,5 +1,5 @@
 numpy
 vtk
-# pyyaml
 scipy
 ruamel.yaml
+skelet3d

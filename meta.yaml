@@ -39,6 +39,7 @@ requirements:
     - vtk!=7.1.0,<9 # 9 is there just to be sure that everything works
     - scipy
     - ruamel.yaml
+#    - skelet3d # just for some special functions
 
   run:
     - python
@@ -46,8 +47,8 @@ requirements:
     - vtk!=7.1.0,<9
     - scipy
     # - numpy
-    # - pyqt 4.11.*
     - ruamel.yaml
+#    - skelet3d # just for some special functions
 
 test:
   # Python imports
