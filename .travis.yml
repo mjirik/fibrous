@@ -52,9 +52,24 @@ install:
 #    - Install dependencies
     - conda install --yes -c SimpleITK -c luispedro -c mjirik -c conda-forge --file requirements_conda.txt python=$CONDA_PYTHON_VERSION
     - conda install --yes pip pytest coveralls pytest-cov
-    - pip install skelet3d
+    # install skelet3d
+
+    - echo $LD_LIBRARY_PATH
+    - git clone https://github.com/mjirik/skelet3d.git
+    - mkdir skelet3d/build
+    - cd skelet3d
+    - pip install -r requirements.txt
+    - cd build
+    - cmake ..
+    - cmake --build .
+    - cd ..
+    - cd ..
+    #    - sudo make install
+#    - pip install skelet3d
     - 'echo "include /usr/local/lib" | sudo tee -a /etc/ld.so.conf'
     - 'sudo ldconfig -v'
+
+     # install skelet3d end
 #    - pip install -r requirements_pip.txt
 #    - "echo $LD_LIBRARY_PATH"
 #    - "pip install -r requirements.txt"
