@@ -49,10 +49,9 @@ before_install:
 install:
 
     - conda update --yes conda
-    - conda install --yes pip nose
-    - pip install python-coveralls
 #    - Install dependencies
     - conda install --yes -c SimpleITK -c luispedro -c mjirik -c conda-forge --file requirements_conda.txt python=$CONDA_PYTHON_VERSION
+    - conda install --yes pip pytest coveralls pytest-cov
 #    - pip install -r requirements_pip.txt
 #    - "echo $LD_LIBRARY_PATH"
 #    - "pip install -r requirements.txt"
@@ -67,6 +66,7 @@ install:
 #    - 'sudo ldconfig -v'
     - conda list
 # command to run tests
-script: nosetests --with-coverage --cover-package=fibrous
+script:
+    - python -m pytest --cov=fibrous/
 after_success:
     - coveralls
