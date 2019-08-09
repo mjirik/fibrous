@@ -70,7 +70,7 @@ test:
 about:
   home: https://github.com/mjirik/fibrous
   license: BSD License
-  summary: 'distribution to pypi and conda'
+  summary: 'Processing of volumetric data of fibrous materials'
 
 # See
 # http://docs.continuum.io/conda/build.html for
