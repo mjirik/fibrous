@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 import os
 import os.path
 
-from nose.plugins.attrib import attr
+import pytest
 
 path_to_script = os.path.dirname(os.path.abspath(__file__))
 import unittest
@@ -57,7 +57,7 @@ class TubeTreeTest(unittest.TestCase):
 
     # interactivetTest = True
 
-    @attr("LAR")
+    @pytest.mark.LAR
     @unittest.skipIf(not ("larcc" in sys.modules), "larcc is not installed")
     def test_vessel_tree_lar(self):
         import fibrous.tb_lar
