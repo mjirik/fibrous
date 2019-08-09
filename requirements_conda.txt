@@ -2,4 +2,4 @@ numpy
 vtk
 scipy
 ruamel.yaml
-skelet3d
+# skelet3d
