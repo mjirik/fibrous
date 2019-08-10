@@ -85,6 +85,6 @@ install:
     - conda list
 # command to run tests
 script:
-    - python -m pytest --cov=fibrous/
+    - python -m pytest --cov=fibrous/ tests
 after_success:
     - coveralls
