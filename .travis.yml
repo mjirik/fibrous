@@ -55,6 +55,8 @@ install:
     # install skelet3d
 
     - echo $LD_LIBRARY_PATH
+    - mkdir skl
+    - cd skl
     - git clone https://github.com/mjirik/skelet3d.git
     - mkdir skelet3d/build
     - cd skelet3d
@@ -63,11 +65,13 @@ install:
     - cmake ..
     - cmake --build .
     - sudo make install
-    - cd ..
-    - cd ..
+    - pip install .
 #    - pip install skelet3d
     - 'echo "include /usr/local/lib" | sudo tee -a /etc/ld.so.conf'
     - 'sudo ldconfig -v'
+    - cd ..
+    - cd ..
+    - cd ..
 
      # install skelet3d end
 #    - pip install -r requirements_pip.txt
