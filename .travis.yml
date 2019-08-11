@@ -62,9 +62,9 @@ install:
     - cd build
     - cmake ..
     - cmake --build .
+    - sudo make install
     - cd ..
     - cd ..
-    #    - sudo make install
 #    - pip install skelet3d
     - 'echo "include /usr/local/lib" | sudo tee -a /etc/ld.so.conf'
     - 'sudo ldconfig -v'
