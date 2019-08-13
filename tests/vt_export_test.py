@@ -147,30 +147,30 @@ class HistologyTest(unittest.TestCase):
 #         self.assertGreater(2*Sv1, Sv2*0.9)
 #         self.assertLess(2*Sv1, Sv2*1.1)
 #
-#     def test_surface_measurement_find_edge(self):
-#         tvg = TBVolume()
-#         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
-#         tvg.importFromYaml(yaml_path)
-#         tvg.voxelsize_mm = [1, 1, 1]
-#         tvg.shape = [100, 100, 100]
-#         data3d = tvg.buildTree()
-#
-#         # init histology Analyser
-#         # metadata = {'voxelsize_mm': tvg.voxelsize_mm}
-#         # data3d = data3d * 10
-#         # threshold = 2.5
-#
-#         im_edg = sm.find_edge(data3d, 0)
-#         # in this area should be positive edge
-#         self.assertGreater(
-#             np.sum(im_edg[25:30, 25:30, 30]),
-#             3
-#         )
-#         # self.assert(im_edg
-#         # import sed3
-#         # ed = sed3.sed3(im_edg)
-#         # ed.show()
-#
+    def test_surface_measurement_find_edge(self):
+        tvg = TBVolume()
+        yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
+        tvg.importFromYaml(yaml_path)
+        tvg.voxelsize_mm = [1, 1, 1]
+        tvg.shape = [100, 100, 100]
+        data3d = tvg.buildTree()
+
+        # init histology Analyser
+        # metadata = {'voxelsize_mm': tvg.voxelsize_mm}
+        # data3d = data3d * 10
+        # threshold = 2.5
+
+        im_edg = sm.find_edge(data3d, 0)
+        # in this area should be positive edge
+        self.assertGreater(
+            np.sum(im_edg[25:30, 25:30, 30]),
+            3
+        )
+        # self.assert(im_edg
+        # import sed3
+        # ed = sed3.sed3(im_edg)
+        # ed.show()
+
 
 if __name__ == "__main__":
     unittest.main()
