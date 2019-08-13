@@ -20,6 +20,7 @@ from io import open
 
 from . import image_manipulation as imma
 
+
 class TubeSkeletonBuilder:
     def __init__(self):
         """
@@ -51,15 +52,14 @@ class TubeSkeletonBuilder:
         self.tube_skeleton, self.rawdata = pick_model1d(rawdata=model1d, label=label)
 
     def set_area_sampling(
-            self,
-            voxelsize_mm=None,
-            areasize_mm=None,
-            shape=None,
-            data3d=None,
-            set_data3d=None,
-            dtype=None,
-            background_intensity=0,
-
+        self,
+        voxelsize_mm=None,
+        areasize_mm=None,
+        shape=None,
+        data3d=None,
+        set_data3d=None,
+        dtype=None,
+        background_intensity=0,
     ):
         """
 
@@ -79,7 +79,9 @@ class TubeSkeletonBuilder:
         )
 
         if data3d is None and set_data3d:
-            data3d = (np.ones(shape, dtype=dtype) * background_intensity).astype(dtype=dtype)
+            data3d = (np.ones(shape, dtype=dtype) * background_intensity).astype(
+                dtype=dtype
+            )
 
         self.data3d = data3d
         self.voxelsize_mm = voxelsize_mm
@@ -88,9 +90,7 @@ class TubeSkeletonBuilder:
 
     def importFromYaml(self, filename):
         tube_skeleton, rawdata = read_tube_skeleton_from_yaml(
-            filename=filename,
-            tree_label=self.tree_label,
-            return_rawdata=True
+            filename=filename, tree_label=self.tree_label, return_rawdata=True
         )
         self.rawdata = rawdata
         self.tube_skeleton = tube_skeleton
@@ -107,9 +107,9 @@ class TubeSkeletonBuilder:
             id = len(self.tube_skeleton)
 
         self.tube_skeleton[id] = {
-            'nodeA_ZYX_mm': pointA,
-            'nodeB_ZYX_mm': pointB,
-            'radius_mm': radius
+            "nodeA_ZYX_mm": pointA,
+            "nodeB_ZYX_mm": pointB,
+            "radius_mm": radius,
         }
 
     def buildTree(self):
@@ -120,6 +120,7 @@ class TubeSkeletonBuilder:
         # LAR init
         if self.use_lar:
             import lar_vessels
+
             self.lv = lar_vessels.LarVessels()
 
         # use generator init
@@ -156,15 +157,19 @@ class TubeSkeletonBuilder:
 
             # prvni a koncovy bod, v mm + radius v mm
             try:
-                p1m = cyl_data['nodeA_ZYX_mm']  # souradnice ulozeny [Z,Y,X]
-                p2m = cyl_data['nodeB_ZYX_mm']
-                rad = cyl_data['radius_mm']
+                p1m = cyl_data["nodeA_ZYX_mm"]  # souradnice ulozeny [Z,Y,X]
+                p2m = cyl_data["nodeB_ZYX_mm"]
+                rad = cyl_data["radius_mm"]
                 self.add_cylinder(p1m, p2m, rad, cyl_id)
             except Exception as e:
                 # import ipdb; ipdb.set_trace() #  noqa BREAKPOINT
 
                 logger.error(
-                    "Segment id " + str(cyl_id) + ": error reading data from yaml!: " + str(e))
+                    "Segment id "
+                    + str(cyl_id)
+                    + ": error reading data from yaml!: "
+                    + str(e)
+                )
                 # return
 
                 # if self.use_lar:
@@ -182,6 +187,7 @@ class TubeSkeletonBuilder:
             logger.debug("joints generated")
         else:
             import traceback
+
             # logger.debug(traceback.format_exc())
             logger.debug("no finish() function in tree constructor")
         # import ipdb; ipdb.set_trace()
@@ -199,12 +205,12 @@ class TubeSkeletonBuilder:
     def saveToFile(self, *args, **kwargs):
         self.save(*args, **kwargs)
 
-
     def stop(self):
         self.stop_processing = True
 
+
 class TreeBuilder:
-    def __init__(self, generator_class='volume', generator_params=None):
+    def __init__(self, generator_class="volume", generator_params=None):
         """
         This function can be used as vessel_tree iterator. Just implement generator_class
 
@@ -222,28 +228,31 @@ class TreeBuilder:
         self.stop_processing = False
         logger.warning("TreeBuilder is deprecated. Use TubeSkeletonBuilder instead.")
 
-        if generator_class in ['vol', 'volume']:
+        if generator_class in ["vol", "volume"]:
             from . import tb_volume
+
             generator_class = tb_volume.TBVolume
-        elif generator_class in ['lar']:
+        elif generator_class in ["lar"]:
             from . import tb_lar
+
             generator_class = tb_lar.TBLar
-        elif generator_class in ['vtk']:
+        elif generator_class in ["vtk"]:
             from . import tb_vtk
+
             generator_class = tb_vtk.TBVTK
-        elif generator_class in ['kunes']:
+        elif generator_class in ["kunes"]:
             from . import tb_lar_kunes
+
             generator_class = tb_lar_kunes.TBLar
-        elif generator_class in ['larsm']:
+        elif generator_class in ["larsm"]:
             from . import tb_lar_smooth
+
             generator_class = tb_lar_smooth.TBLarSmooth
-        elif generator_class in ['lar_nojoints']:
+        elif generator_class in ["lar_nojoints"]:
             from . import tb_lar
+
             generator_class = tb_lar.TBLar
-            generator_params = {
-                'endDistMultiplicator': 0,
-                'use_joints': False
-            }
+            generator_params = {"endDistMultiplicator": 0, "use_joints": False}
         self.generator_class = generator_class
         self.generator_params = generator_params
 
@@ -252,15 +261,16 @@ class TreeBuilder:
 
     def importFromYaml(self, filename):
         from ruamel.yaml import YAML
+
         yaml = YAML(typ="unsafe")
         with open(filename, encoding="utf-8") as f:
             rawdata = yaml.load(f)
         self.rawdata = self.fix_tree_structure(rawdata)
 
-        tkeys = list(self.rawdata['Graph'])
+        tkeys = list(self.rawdata["Graph"])
         if (self.tree_label is None) or (self.tree_label not in tkeys):
             self.tree_label = tkeys[0]
-        tree_data = self.rawdata['Graph'][self.tree_label]
+        tree_data = self.rawdata["Graph"][self.tree_label]
         self.tree_data = tree_data
 
     def add_segment_to_tree(self, pointA, pointB, radius, id=None):
@@ -275,9 +285,9 @@ class TreeBuilder:
             id = len(self.tree_data)
 
         self.tree_data[id] = {
-            'nodeA_ZYX_mm': pointA,
-            'nodeB_ZYX_mm': pointB,
-            'radius_mm': radius
+            "nodeA_ZYX_mm": pointA,
+            "nodeB_ZYX_mm": pointB,
+            "radius_mm": radius,
         }
 
     def buildTree(self):
@@ -288,6 +298,7 @@ class TreeBuilder:
         # LAR init
         if self.use_lar:
             import lar_vessels
+
             self.lv = lar_vessels.LarVessels()
 
         # use generator init
@@ -328,15 +339,19 @@ class TreeBuilder:
 
             # prvni a koncovy bod, v mm + radius v mm
             try:
-                p1m = cyl_data['nodeA_ZYX_mm']  # souradnice ulozeny [Z,Y,X]
-                p2m = cyl_data['nodeB_ZYX_mm']
-                rad = cyl_data['radius_mm']
+                p1m = cyl_data["nodeA_ZYX_mm"]  # souradnice ulozeny [Z,Y,X]
+                p2m = cyl_data["nodeB_ZYX_mm"]
+                rad = cyl_data["radius_mm"]
                 self.generator.add_cylinder(p1m, p2m, rad, cyl_id)
             except Exception as e:
                 # import ipdb; ipdb.set_trace() #  noqa BREAKPOINT
 
                 logger.error(
-                    "Segment id " + str(cyl_id) + ": error reading data from yaml!: " + str(e))
+                    "Segment id "
+                    + str(cyl_id)
+                    + ": error reading data from yaml!: "
+                    + str(e)
+                )
                 # return
 
                 # if self.use_lar:
@@ -354,6 +369,7 @@ class TreeBuilder:
             logger.debug("joints generated")
         else:
             import traceback
+
             # logger.debug(traceback.format_exc())
             logger.debug("no finish() function in tree constructor")
         # import ipdb; ipdb.set_trace()
@@ -376,6 +392,7 @@ class TreeBuilder:
 
     def stop(self):
         self.stop_processing = True
+
 
 def parse_area_properties(rawdata):
     def find_in_general_key(general):
@@ -402,7 +419,9 @@ def parse_area_properties(rawdata):
     if "voxelsize_px" in rawdata.keys():
         area["areasize_px"] = rawdata["voxelsize_px"]
 
-    area["areasize_mm"] = np.asarray(area["areasize_px"]) * np.asarray(area["voxelsize_mm"])
+    area["areasize_mm"] = np.asarray(area["areasize_px"]) * np.asarray(
+        area["voxelsize_mm"]
+    )
     return area
 
 
@@ -415,6 +434,7 @@ def read_tube_skeleton_from_yaml(filename, tree_label=None, return_rawdata=False
     :return:
     """
     from ruamel.yaml import YAML
+
     yaml = YAML(typ="unsafe")
     with open(filename, encoding="utf-8") as f:
         rawdata = yaml.load(f)
@@ -441,10 +461,10 @@ def pick_model1d(rawdata, label=None):
 
     rawdataf = compatibility_whole_tree_structure_to_new(rawdata)
 
-    tkeys = list(rawdataf['Graph'])
+    tkeys = list(rawdataf["Graph"])
     if (label is None) or (label not in tkeys):
         label = tkeys[0]
-    tube_skeleton = rawdataf['Graph'][label]
+    tube_skeleton = rawdataf["Graph"][label]
     return tube_skeleton, rawdataf
 
 
@@ -454,17 +474,17 @@ def compatibility_whole_tree_structure_to_new(tree_raw_data):
     :param tree_raw_data:
     :return: fixed tree_raw_data
     """
-    if 'graph' in tree_raw_data:
-        gr = tree_raw_data.pop('graph')
-        tree_raw_data['Graph'] = gr  # {'tree1':gr}
+    if "graph" in tree_raw_data:
+        gr = tree_raw_data.pop("graph")
+        tree_raw_data["Graph"] = gr  # {'tree1':gr}
 
     if "Graph" not in tree_raw_data:
         tree_raw_data = {"Graph": tree_raw_data}
 
     # if all keys in Graph a
-    if all([type(k) != str for k in tree_raw_data['Graph'].keys()]):
-        gr = tree_raw_data.pop('Graph')
-        tree_raw_data['Graph'] = {'tree1': gr}
+    if all([type(k) != str for k in tree_raw_data["Graph"].keys()]):
+        gr = tree_raw_data.pop("Graph")
+        tree_raw_data["Graph"] = {"tree1": gr}
 
     # else:
     #     tree_raw_data = tree_raw_data['Graph']
@@ -491,7 +511,9 @@ def single_tree_compatibility_to_new(indata):
             ii["radius_mm"] = ii.pop("radius")
     return indata
 
+
 # def __single_tube_compatibility_to_old(item):
+
 
 def single_tree_compatibility_to_old(indata):
     # scale = 1e-3
@@ -512,38 +534,40 @@ def single_tree_compatibility_to_old(indata):
         lengthEstimation = None
         try:
             # old version of yaml tree
-            vA = item['upperVertexXYZmm']
-            vB = item['lowerVertexXYZmm']
-            radi = item['radius']
-            lengthEstimation = item['length']
+            vA = item["upperVertexXYZmm"]
+            vB = item["lowerVertexXYZmm"]
+            radi = item["radius"]
+            lengthEstimation = item["length"]
         except:
             # new version of yaml
             try:
-                vA = item['nodeA_ZYX_mm']
-                vB = item['nodeB_ZYX_mm']
-                radi = item['radius_mm']
+                vA = item["nodeA_ZYX_mm"]
+                vB = item["nodeB_ZYX_mm"]
+                radi = item["radius_mm"]
                 if "lengthEstimation" in item.keys():
-                    lengthEstimation = item['lengthEstimation']
+                    lengthEstimation = item["lengthEstimation"]
             except:
                 import traceback
+
                 logger.debug(traceback.format_exc())
                 continue
 
-        br['upperVertex'] = np.array(vA) * scale
-        br['radius'] = radi * scale
+        br["upperVertex"] = np.array(vA) * scale
+        br["radius"] = radi * scale
         if lengthEstimation is None:
 
-            br['real_length'] = None
+            br["real_length"] = None
         else:
-            br['real_length'] = lengthEstimation * scale
+            br["real_length"] = lengthEstimation * scale
 
-        vv = np.array(vB) * scale - br['upperVertex']
-        br['direction'] = vv / np.linalg.norm(vv)
-        br['length'] = np.linalg.norm(vv)
+        vv = np.array(vB) * scale - br["upperVertex"]
+        br["direction"] = vv / np.linalg.norm(vv)
+        br["length"] = np.linalg.norm(vv)
         # outdata[key] = br
         outdata.append(br)
 
     return outdata
+
 
 def single_tree_into_list(indata):
     """
@@ -562,7 +586,6 @@ def single_tree_into_list(indata):
     return outdata
 
 
-
 def main():
     logging.basicConfig()
     logger = logging.getLogger()
@@ -570,55 +593,53 @@ def main():
 
     # input parser
     parser = argparse.ArgumentParser(
-        description='Histology analyser reporter. Try: \
-python src/tb_volume.py -i ./tests/hist_stats_test.yaml'
+        description="Histology analyser reporter. Try: \
+python src/tb_volume.py -i ./tests/hist_stats_test.yaml"
     )
     parser.add_argument(
-        '-i', '--inputfile',
+        "-i", "--inputfile", default=None, required=True, help="input file, yaml file"
+    )
+    parser.add_argument(
+        "-o",
+        "--outputfile",
         default=None,
-        required=True,
-        help='input file, yaml file'
+        help="output file, .raw, .dcm, .tiff, given by extension ",
     )
     parser.add_argument(
-        '-o', '--outputfile',
-        default=None,
-        help='output file, .raw, .dcm, .tiff, given by extension '
+        "-ot",
+        "--outputfiletype",
+        default="pkl",
+        help="output file type.  raw, dcm, tiff, or pkl,   default is pkl, ",
     )
     parser.add_argument(
-        '-ot', '--outputfiletype',
-        default='pkl',
-        help='output file type.  raw, dcm, tiff, or pkl,   default is pkl, '
-    )
-    parser.add_argument(
-        '-vs', '--voxelsize',
+        "-vs",
+        "--voxelsize",
         default=[1.0, 1.0, 1.0],
         type=float,
-        metavar='N',
-        nargs='+',
-        help='size of voxel (ZYX)'
+        metavar="N",
+        nargs="+",
+        help="size of voxel (ZYX)",
     )
     parser.add_argument(
-        '-ds', '--datashape',
+        "-ds",
+        "--datashape",
         default=[200, 200, 200],
         type=int,
-        metavar='N',
-        nargs='+',
-        help='size of output data in pixels for each axis (ZYX)'
+        metavar="N",
+        nargs="+",
+        help="size of output data in pixels for each axis (ZYX)",
     )
     parser.add_argument(
-        '-g', '--generator',
-        default='vol',
+        "-g",
+        "--generator",
+        default="vol",
         type=str,
         help='Volume or surface model can be generated by use this option. \
                 Use "vol", "volume" for volumetric model. For LAR surface model\
-                use "lar". For VTK file use "vtk".'
+                use "lar". For VTK file use "vtk".',
     )
-    parser.add_argument(
-        '-d', '--debug', action='store_true',
-        help='Debug mode')
-    parser.add_argument(
-        '-l', '--useLar', action='store_true',
-        help='Use LAR')
+    parser.add_argument("-d", "--debug", action="store_true", help="Debug mode")
+    parser.add_argument("-l", "--useLar", action="store_true", help="Use LAR")
     args = parser.parse_args()
 
     if args.debug:

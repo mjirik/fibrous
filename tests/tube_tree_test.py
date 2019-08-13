@@ -39,6 +39,7 @@ from fibrous.tree import TreeBuilder
 
 from fibrous.tb_vtk import TBVTK
 from fibrous.tb_volume import TBVolume
+
 # There is some problem with VTK. Code seams to be fine but it fails
 #  Generic Warning: In /tmp/vtk20150408-2435-1y7p97u/VTK-6.2.0/Common/Core/vtkObjectBase.cxx, line 93
 #  Trying to delete object with non-zero reference count.
@@ -51,6 +52,7 @@ VTK_MALLOC_PROBLEM = True
 
 #
 
+
 class TubeTreeTest(unittest.TestCase):
     def setUp(self):
         self.interactivetTest = False
@@ -61,6 +63,7 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(not ("larcc" in sys.modules), "larcc is not installed")
     def test_vessel_tree_lar(self):
         import fibrous.tb_lar
+
         tvg = TreeBuilder(fibrous.tb_lar.TBLar)
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
@@ -87,17 +90,17 @@ class TubeTreeTest(unittest.TestCase):
 
     def sample_tube_skeleton(self):
         sample_tube = {
-            1:{
+            1: {
                 "nodeA_ZYX_mm": [0, 30, 20],
                 "nodeB_ZYX_mm": [0, 35, 25],
                 "radius_mm": 3,
             },
-            2:{
+            2: {
                 "nodeA_ZYX_mm": [0, 30, 20],
                 "nodeB_ZYX_mm": [15, 25, 20],
                 "radius_mm": 3,
             },
-            3:{
+            3: {
                 "nodeA_ZYX_mm": [10, 10, 20],
                 "nodeB_ZYX_mm": [5, 10, 20],
                 "radius_mm": 3,
@@ -153,6 +156,7 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vtk_with_new_subclass(self):
         from fibrous.tb_vtk import TBVTK
+
         tvg = TBVTK()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
@@ -162,6 +166,7 @@ class TubeTreeTest(unittest.TestCase):
 
     def test_vessel_tree_volume_with_new_subclass(self):
         from fibrous.tb_volume import TBVolume
+
         tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
@@ -176,6 +181,7 @@ class TubeTreeTest(unittest.TestCase):
 
     def test_get_tree_simple(self):
         from fibrous.tb_volume import TBVolume
+
         tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
@@ -183,20 +189,24 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.init_data3d(shape=[100, 100, 100])
         # output = tvg.buildTree()  # noqa
         from fibrous.tb_vtk import gen_tree_simple
+
         # from fibrous.tree import single_tree_compatibility_to_old
         vtk_tree = gen_tree_simple(tvg.tube_skeleton)
         self.assertTrue(vtk_tree is not None)
 
     def test_get_vt_from_file_and_save_it_to_vtk(self):
         import fibrous.tb_vtk
-        fn="output.vtk"
+
+        fn = "output.vtk"
 
         if os.path.exists(fn):
             os.remove(fn)
 
         # tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
-        fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=True)
+        fibrous.tb_vtk.vt_file_2_vtk_file(
+            yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=True
+        )
 
         self.assertTrue(os.path.exists(fn))
 
@@ -204,15 +214,17 @@ class TubeTreeTest(unittest.TestCase):
     def test_get_vt_from_file_and_save_it_to_vtk_with_not_simple_method(self):
         # TODO findout what is wrong with VTK export with boolean operations
         import fibrous.tb_vtk
-        fn="output.vtk"
+
+        fn = "output.vtk"
 
         if os.path.exists(fn):
             os.remove(fn)
 
         tvg = TBVolume()
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
-        fibrous.tb_vtk.vt_file_2_vtk_file(yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=False)
-
+        fibrous.tb_vtk.vt_file_2_vtk_file(
+            yaml_path, outfile=fn, tube_shape=False, use_simple_cylinder_method=False
+        )
 
         self.assertTrue(os.path.exists(fn))
 
@@ -227,6 +239,7 @@ class TubeTreeTest(unittest.TestCase):
         # from fibrous.tree import TubeSkeletonBuilder as TreeGenerator
         # from fibrous.tree import TreeBuilder as TreeGenerator
         from fibrous.tb_volume import TBVolume as TreeGenerator
+
         # print("zacatek podezreleho testu")
         # import segmentation
         # import misc
@@ -259,12 +272,10 @@ class TubeTreeTest(unittest.TestCase):
 
         self.assertTrue(os.path.exists(output_file))
 
-
-
     @unittest.skip("test debug")
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vtk(self):
-        tvg = TreeBuilder('vtk')
+        tvg = TreeBuilder("vtk")
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
@@ -283,7 +294,7 @@ class TubeTreeTest(unittest.TestCase):
         import skelet3d.skeleton_analyser
         import shutil
 
-        fn_out = 'tree.vtk'
+        fn_out = "tree.vtk"
         if os.path.exists(fn_out):
             os.remove(fn_out)
 
@@ -293,7 +304,9 @@ class TubeTreeTest(unittest.TestCase):
         volume_data[:, 0:7, 5] = 1
         skelet = skelet3d.skelet3d(volume_data)
 
-        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1])
+        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(
+            skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1]
+        )
         stats = skan.skeleton_analysis()
 
         # tvg = TreeBuilder('vtk')
@@ -314,7 +327,7 @@ class TubeTreeTest(unittest.TestCase):
         import skelet3d.skeleton_analyser
         import shutil
 
-        fn_out = 'tree_one_tube.vtk'
+        fn_out = "tree_one_tube.vtk"
         if os.path.exists(fn_out):
             os.remove(fn_out)
 
@@ -324,10 +337,16 @@ class TubeTreeTest(unittest.TestCase):
         volume_data[:, 0:7, 5] = 1
         skelet = skelet3d.skelet3d(volume_data)
 
-        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1])
+        skan = skelet3d.skeleton_analyser.SkeletonAnalyser(
+            skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1]
+        )
         stats = skan.skeleton_analysis()
 
-        self.assertEqual(len(stats), 1, "There should be just one cylinder based on data with different diameter")
+        self.assertEqual(
+            len(stats),
+            1,
+            "There should be just one cylinder based on data with different diameter",
+        )
         # tvg = TreeBuilder('vtk')
         tvg = TBVTK()
         tvg.set_model1d(stats)
@@ -348,7 +367,7 @@ class TubeTreeTest(unittest.TestCase):
         import skelet3d.skeleton_analyser
         import shutil
 
-        fn_out = 'tree_more_tubes.vtk'
+        fn_out = "tree_more_tubes.vtk"
         if os.path.exists(fn_out):
             os.remove(fn_out)
 
@@ -364,8 +383,10 @@ class TubeTreeTest(unittest.TestCase):
         skelet = skelet3d.skelet3d(volume_data)
 
         skan = skelet3d.skeleton_analyser.SkeletonAnalyser(
-            skelet, volume_data=volume_data, voxelsize_mm=[1, 1, 1],
-            cut_wrong_skeleton=False
+            skelet,
+            volume_data=volume_data,
+            voxelsize_mm=[1, 1, 1],
+            cut_wrong_skeleton=False,
         )
         stats = skan.skeleton_analysis()
 
@@ -380,12 +401,11 @@ class TubeTreeTest(unittest.TestCase):
         tvg.saveToFile(fn_out)
         self.assertTrue(os.path.exists(fn_out))
 
-
-
     # TODO finish this test
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vessel_tree_vol(self):
         import fibrous.tb_volume
+
         tvg = TreeBuilder(fibrous.tb_volume.TBVolume)
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         tvg.importFromYaml(yaml_path)
@@ -416,26 +436,31 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_vtk_tree(self):
         import numpy as np
-        tree_data = {
 
-        }
+        tree_data = {}
         element_number = 1
         area_size = 100
         radius = 5
         np.random.seed(0)
-        pts1 = np.random.random([element_number, 3]) * (area_size - 4 * radius) + 2 * radius
-        pts2 = np.random.random([element_number, 3]) * (area_size - 4 * radius) + 2 * radius
+        pts1 = (
+            np.random.random([element_number, 3]) * (area_size - 4 * radius)
+            + 2 * radius
+        )
+        pts2 = (
+            np.random.random([element_number, 3]) * (area_size - 4 * radius)
+            + 2 * radius
+        )
         for i in range(element_number):
             edge = {
                 # "nodeA_ZYX_mm": vor3.vertices[simplex],
                 # "nodeB_ZYX_mm": vor3.vertices[simplex],
                 "nodeA_ZYX_mm": pts1[i],
                 "nodeB_ZYX_mm": pts2[i],
-                "radius_mm": radius
+                "radius_mm": radius,
             }
             tree_data[i] = edge
 
-        tvg = TreeBuilder('vtk')
+        tvg = TreeBuilder("vtk")
         # yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         # tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
@@ -449,9 +474,8 @@ class TubeTreeTest(unittest.TestCase):
     @unittest.skipIf(VTK_MALLOC_PROBLEM, "VTK malloc problem")
     def test_tree_generator(self):
         import numpy as np
-        tree_data = {
 
-        }
+        tree_data = {}
         element_number = 6
         np.random.seed(0)
         pts = np.random.random([element_number, 3]) * 100
@@ -459,6 +483,7 @@ class TubeTreeTest(unittest.TestCase):
         # construct voronoi
         import scipy.spatial
         import itertools
+
         vor3 = scipy.spatial.Voronoi(pts)
 
         # for i, two_points in enumerate(vor3.ridge_points):
@@ -477,7 +502,7 @@ class TubeTreeTest(unittest.TestCase):
                         # "nodeB_ZYX_mm": vor3.vertices[simplex],
                         "nodeA_ZYX_mm": vor3.vertices[two_points[0]],
                         "nodeB_ZYX_mm": vor3.vertices[two_points[1]],
-                        "radius_mm": 2
+                        "radius_mm": 2,
                     }
                     tree_data[i] = edge
             else:
@@ -492,11 +517,11 @@ class TubeTreeTest(unittest.TestCase):
                     "nodeA_ZYX_mm": pts[i - 1],
                     "nodeB_ZYX_mm": pts[i],
                     #         "nodeB_ZYX_mm": np.random.random(3) * 100,
-                    "radius_mm": 1
+                    "radius_mm": 1,
                 }
                 tree_data[i + length] = edge
 
-        tvg = TreeBuilder('vtk')
+        tvg = TreeBuilder("vtk")
         yaml_path = os.path.join(path_to_script, "./hist_stats_test.yaml")
         # tvg.importFromYaml(yaml_path)
         tvg.voxelsize_mm = [1, 1, 1]
@@ -506,7 +531,7 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.show()
         tvg.saveToFile("test_tree_output.vtk")
 
-        tvgvol = TreeBuilder('vol')
+        tvgvol = TreeBuilder("vol")
         tvgvol.voxelsize_mm = [1, 1, 1]
         tvgvol.shape = [100, 100, 100]
         tvgvol.tree_data = tree_data
@@ -522,12 +547,15 @@ class TubeTreeTest(unittest.TestCase):
 
         yaml_path = os.path.join(path_to_script, "vt_biodur_simple.yaml")
         tvg.importFromYaml(yaml_path)
-        tvg.set_area_sampling(voxelsize_mm=[1,1,1], shape=[150, 150, 150])
+        tvg.set_area_sampling(voxelsize_mm=[1, 1, 1], shape=[150, 150, 150])
         # tvg.voxelsize_mm = [1, 1, 1]
         # tvg.shape = [150, 150, 150]
         data3d = tvg.buildTree()
 
-    @unittest.skipUnless(os.path.exists(r"e:/vessel_tree_data/ep_hcc2_porta1d.yaml"), "data are not available")
+    @unittest.skipUnless(
+        os.path.exists(r"e:/vessel_tree_data/ep_hcc2_porta1d.yaml"),
+        "data are not available",
+    )
     def test_read_portal_vein_data(self):
         import fibrous.tree
         from fibrous.tree import TreeBuilder
@@ -543,6 +571,7 @@ class TubeTreeTest(unittest.TestCase):
         # tvg.voxelsize_mm = [1, 1, 1]
         # tvg.shape = [150, 150, 150]
         # data3d = tvg.buildTree()
+
 
 if __name__ == "__main__":
     unittest.main()

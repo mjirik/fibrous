@@ -79,7 +79,6 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
 
         self.joints_lar.append(tube)
 
-
         # self.__draw_circle(nodeB, vect, radius)
 
         ##vector = (np.array(nodeA) - np.array(nodeB)).tolist()
@@ -165,7 +164,7 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         self.CV.append([ln, ln + 1, ln + 2, ln + 3, ln + 4])
 
     def finish(self):
-        print('use joints? ', self.use_joints)
+        print("use joints? ", self.use_joints)
         if self.use_joints:
             for joint in self.joints.values():
                 # There is more then just one circle in this joint, so it
@@ -174,10 +173,8 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
                     self.__generate_joint(joint)
 
     def __half_plane(self, perp, plane_point, point):
-        cdf = (np.array(point) - np.array(plane_point))
-        out = perp[0] * cdf[0] + \
-              perp[1] * cdf[1] + \
-              perp[2] * cdf[2]
+        cdf = np.array(point) - np.array(plane_point)
+        out = perp[0] * cdf[0] + perp[1] * cdf[1] + perp[2] * cdf[2]
         return out > 0
 
     def __get_vessel_connection_curve(self, vessel_connection, perp, vec0, vec1):
@@ -196,20 +193,22 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         # left to right
         perp_lr = np.cross(perp, vec1)
 
-        print('center ', center)
-        print('circle ', circle)
+        print("center ", center)
+        print("circle ", circle)
         for vertex_id in circle:
-            if ((len(curve_pts_indexes_t) > 0) and
-                        (vertex_id - curve_pts_indexes_t[-1]) > 1):
+            if (len(curve_pts_indexes_t) > 0) and (
+                vertex_id - curve_pts_indexes_t[-1]
+            ) > 1:
                 brake_point_t = len(curve_pts_indexes_t)
-            if ((len(curve_pts_indexes_d) > 0) and
-                        (vertex_id - curve_pts_indexes_d[-1]) > 1):
+            if (len(curve_pts_indexes_d) > 0) and (
+                vertex_id - curve_pts_indexes_d[-1]
+            ) > 1:
                 brake_point_d = len(curve_pts_indexes_d)
 
             # hp = self.__half_plane(perp_lr, center, self.V[vertex_id])
             hp = self.__half_plane(perp, center, self.V[vertex_id])
 
-            if (hp):
+            if hp:
                 curve_t.append(self.V[vertex_id])
                 curve_pts_indexes_t.append(vertex_id)
             else:
@@ -217,14 +216,14 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
                 curve_pts_indexes_d.append(vertex_id)
 
         ordered_curve_t = curve_t[brake_point_t:] + curve_t[:brake_point_t]
-        ordered_pts_indexes_t = \
-            curve_pts_indexes_t[brake_point_t:] + \
-            curve_pts_indexes_t[:brake_point_t]
+        ordered_pts_indexes_t = (
+            curve_pts_indexes_t[brake_point_t:] + curve_pts_indexes_t[:brake_point_t]
+        )
 
         ordered_curve_d = curve_d[brake_point_d:] + curve_d[:brake_point_d]
-        ordered_pts_indexes_d = \
-            curve_pts_indexes_d[brake_point_t:] + \
-            curve_pts_indexes_d[:brake_point_d]
+        ordered_pts_indexes_d = (
+            curve_pts_indexes_d[brake_point_t:] + curve_pts_indexes_d[:brake_point_d]
+        )
         # print '    hp v id ', curve_pts_indexes_t
         # print 'ord hp v id ', ordered_pts_indexes_t
 
@@ -261,18 +260,23 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
 
         for vessel_connection in joint:
             ordered_curve_t, ordered_curve_d = self.__get_vessel_connection_curve(
-                vessel_connection, perp, vec0, vec1)
+                vessel_connection, perp, vec0, vec1
+            )
 
             curvelistT.append(ordered_curve_t)
             curvelistD.append(ordered_curve_d)
             # print '  ', self.V[vertex_id], '  hp: ', hp
 
-        Betacurve_id, Astart, Alphacurve_id, Bstart, Gammacurve_id, Cstart = self.__find_couples(curvelistT)
+        Betacurve_id, Astart, Alphacurve_id, Bstart, Gammacurve_id, Cstart = self.__find_couples(
+            curvelistT
+        )
 
         # print 'ABC ', Betacurve_id, Astart, Alphacurve_id, Bstart
 
         dom2D = ip.TRIANGLE_DOMAIN(32, [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        Cab0 = BEZIER(S1)(self.__order_curve(curvelistT[Gammacurve_id][-1:0:-1], Cstart))
+        Cab0 = BEZIER(S1)(
+            self.__order_curve(curvelistT[Gammacurve_id][-1:0:-1], Cstart)
+        )
         Cbc0 = BEZIER(S1)(self.__order_curve(curvelistT[Alphacurve_id], Bstart))
         Cbc1 = BEZIER(S2)(self.__order_curve(curvelistT[Alphacurve_id], Bstart))
         Cca0 = BEZIER(S1)(self.__order_curve(curvelistT[Betacurve_id][-1:0:-1], Astart))
@@ -280,12 +284,16 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         out1 = MAP(ip.TRIANGULAR_COONS_PATCH([Cab0, Cbc1, Cca0]))(STRUCT(dom2D))
         self.joints_lar.append(out1)
 
-        Betacurve_id, Astart, Alphacurve_id, Bstart, Gammacurve_id, Cstart = self.__find_couples(curvelistD)
+        Betacurve_id, Astart, Alphacurve_id, Bstart, Gammacurve_id, Cstart = self.__find_couples(
+            curvelistD
+        )
 
         # print 'ABC ', Betacurve_id, Astart, Alphacurve_id, Bstart
 
         dom2D = ip.TRIANGLE_DOMAIN(32, [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        Cab0 = BEZIER(S1)(self.__order_curve(curvelistD[Gammacurve_id][-1:0:-1], Cstart))
+        Cab0 = BEZIER(S1)(
+            self.__order_curve(curvelistD[Gammacurve_id][-1:0:-1], Cstart)
+        )
         Cbc0 = BEZIER(S1)(self.__order_curve(curvelistD[Alphacurve_id], Bstart))
         Cbc1 = BEZIER(S2)(self.__order_curve(curvelistD[Alphacurve_id], Bstart))
         Cca0 = BEZIER(S1)(self.__order_curve(curvelistD[Betacurve_id][-1:0:-1], Astart))
@@ -302,10 +310,10 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         mn_ind = None
         output = None
         for i in range(0, 3):
-            Betacurve_id, Astart, dist0 = self.__find_nearest(
-                curvelist, i, 0, [i])
+            Betacurve_id, Astart, dist0 = self.__find_nearest(curvelist, i, 0, [i])
             Alphacurve_id, Bstart, dist1 = self.__find_nearest(
-                curvelist, i, -1, [i, Betacurve_id])
+                curvelist, i, -1, [i, Betacurve_id]
+            )
             this_energy = dist0 + dist1
 
             if energy is None or this_energy < energy:
@@ -314,10 +322,10 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
                 # Gammacurve_id = i
                 output = Betacurve_id, Astart, Alphacurve_id, Bstart, i, 0
 
-            Betacurve_id, Astart, dist0 = self.__find_nearest(
-                curvelist, i, -1, [i])
+            Betacurve_id, Astart, dist0 = self.__find_nearest(curvelist, i, -1, [i])
             Alphacurve_id, Bstart, dist1 = self.__find_nearest(
-                curvelist, i, 0, [i, Betacurve_id])
+                curvelist, i, 0, [i, Betacurve_id]
+            )
             this_energy = dist0 + dist1
 
             if energy is None or this_energy < energy:
@@ -420,7 +428,8 @@ class TBLarSmooth(tree.TubeSkeletonBuilder):
         """
         Draw circle some circle points as tetrahedrons.
         """
-        pts = g3.circle(center, perp_vect, radius,
-                        polygon_element_number=polygon_element_number)
+        pts = g3.circle(
+            center, perp_vect, radius, polygon_element_number=polygon_element_number
+        )
         for pt in pts:
             self.__add_tetr(pt)

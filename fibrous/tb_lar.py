@@ -23,15 +23,12 @@ import numpy as np
 from . import tree
 
 
-
 # import warnings
 # warnings.filterwarnings('error')
 
+
 class TBLar(tree.TubeSkeletonBuilder):
-    def __init__(self, gtree=None,
-                 endDistMultiplicator=1,
-                 use_joints=True
-                 ):
+    def __init__(self, gtree=None, endDistMultiplicator=1, use_joints=True):
         """
         gtree is information about input data structure.
         endDistMultiplicator: make cylinder shorter by multiplication of radius
@@ -40,6 +37,7 @@ class TBLar(tree.TubeSkeletonBuilder):
         # super(tree.FiberSkeletBuilder, self).__init__()
         tree.TubeSkeletonBuilder.__init__(self)
         import geometry3d as g3
+
         self.V = []
         self.CV = []
         self.joints = {}
@@ -65,17 +63,14 @@ class TBLar(tree.TubeSkeletonBuilder):
         vector = (np.array(nodeA) - np.array(nodeB)).tolist()
 
         # mov circles to center of cylinder by size of radius because of joint
-        nodeA = g3.translate(nodeA, vector,
-                             -radius * self.endDistMultiplicator)
-        nodeB = g3.translate(nodeB, vector,
-                             radius * self.endDistMultiplicator)
+        nodeA = g3.translate(nodeA, vector, -radius * self.endDistMultiplicator)
+        nodeB = g3.translate(nodeB, vector, radius * self.endDistMultiplicator)
 
         # from splines import all
         if all(nodeA == nodeB):
             logger.error("End points are on same place")
 
-        ptsA, ptsB = g3.cylinder_circles(nodeA, nodeB, radius,
-                                         element_number=30)
+        ptsA, ptsB = g3.cylinder_circles(nodeA, nodeB, radius, element_number=30)
         CVlistA = self.__construct_cylinder_end(ptsA, idA)
         CVlistB = self.__construct_cylinder_end(ptsB, idB)
 
@@ -202,7 +197,8 @@ class TBLar(tree.TubeSkeletonBuilder):
         """
         Draw circle some circle points as tetrahedrons.
         """
-        pts = g3.circle(center, perp_vect, radius,
-                        polygon_element_number=polygon_element_number)
+        pts = g3.circle(
+            center, perp_vect, radius, polygon_element_number=polygon_element_number
+        )
         for pt in pts:
             self.__add_tetr(pt)

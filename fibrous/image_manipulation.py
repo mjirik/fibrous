@@ -3,11 +3,9 @@
 
 import numpy as np
 
+
 def get_all_area_sampling_parameters(
-        voxelsize_mm=None,
-        areasize_mm=None,
-        areasize_px=None,
-        data3d=None,
+    voxelsize_mm=None, areasize_mm=None, areasize_px=None, data3d=None
 ):
     """
     Calculate all area sampling dimensions

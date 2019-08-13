@@ -1,4 +1,4 @@
-__all__ = ['tree' ]
+__all__ = ["tree"]
 
 __version__ = "0.1.0"
 

@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import logging
+
 logger = logging.getLogger(__name__)
 import unittest
 import numpy as np
 from fibrous import image_manipulation as imma
-
 
 
 class ImageManipulationTest(unittest.TestCase):
@@ -50,4 +50,3 @@ class ImageManipulationTest(unittest.TestCase):
             areasize_mm=[10, 15, 12], areasize_px=[5, 5, 12]
         )
         self.assertListsEqual(voxelsize_mm, [2, 3, 1])
-
