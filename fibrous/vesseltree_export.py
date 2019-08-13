@@ -19,6 +19,7 @@ import traceback
 import numpy as np
 import scipy.ndimage
 
+
 def vt2esofspy(vesseltree, outputfilename="tracer.txt", axisorder=[0, 1, 2]):
     """
     exports vesseltree to esofspy format

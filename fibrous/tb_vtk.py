@@ -835,13 +835,13 @@ def inscribed_polygon_radius(radius, n):
 def regular_polygon_area_equivalent_radius(n, radius=1.0):
     """ Compute equivalent radius to obtain same surface area as circle.
 
-    \theta = \frac{2 \pi}{n}
+    \\theta = \\frac{2 \\pi}{n}
 
-    r_{eqS} = \sqrt{\frac{\theta r^2}{\sin{\theta}}}
+    r_{eqS} = \\sqrt{\\frac{\\theta r^2}{\\sin{\\theta}}}
 
     simplier form:
 
-    r_{eqS} = \sqrt{\frac{2 \pi r^2}{n \sin{\frac{2 \pi}{n}}}}
+    r_{eqS} = \\sqrt{\\frac{2 \\pi r^2}{n \\sin{\\frac{2 \\pi}{n}}}}
 
     :param radius: circle radius
     :param n:  number of regular polygon segments
@@ -856,12 +856,12 @@ def regular_polygon_area_equivalent_radius(n, radius=1.0):
 def regular_polygon_perimeter_equivalent_radius(n, radius=1.0):
     """ Compute equivalent radius to obtain same perimeter as circle.
 
-    \theta = \frac{2 \pi}{n}
+    \\theta = \\frac{2 \\pi}{n}
 
-    r_{eqP} = \frac{\theta r}{2 \sin{\frac{\theta}{2}}}
+    r_{eqP} = \\frac{\\theta r}{2 \\sin{\frac{\\theta}{2}}}
 
     siplier form:
-    r_{eqP} = \frac{\pi r}{n \sin{\frac{\pi}{n}}}
+    r_{eqP} = \\frac{\\pi r}{n \\sin{\\frac{\\pi}{n}}}
 
     :param radius: circle radius
     :param n:  number of regular polygon segments
