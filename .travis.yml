@@ -27,13 +27,14 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install -qq cmake libinsighttoolkit3-dev libpng12-dev libgdcm2-dev
 
+    - wget https://raw.githubusercontent.com/mjirik/discon/master/tools/install_conda.sh && source install_conda.sh
     # We do this conditionally because it saves us some downloading if the
     # version is the same.
-    - if [[ "$CONDA_PYTHON_VERSION" == "2.7" ]]; then
-        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-      else
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-      fi
+#    - if [[ "$CONDA_PYTHON_VERSION" == "2.7" ]]; then
+#        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+#      else
+#        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+#      fi
 #    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
 #    - chmod +x miniconda.sh
 #    - ./miniconda.sh -b
@@ -41,7 +42,13 @@ before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
+    - conda update --yes conda
+    - conda config --add channels conda-forge
+    - conda config --add channels SimpleITK
+    - conda config --add channels mjirik
+    - conda config --add channels luispedro
+#    - conda config --add channels menpo
+    - conda list
     # Useful for debugging any issues with conda
     - conda info -a
 
@@ -50,7 +57,8 @@ install:
 
     - conda update --yes conda
 #    - Install dependencies
-    - conda install --yes -c SimpleITK -c luispedro -c mjirik -c conda-forge --file requirements_conda.txt python=$CONDA_PYTHON_VERSION
+    - conda create -n travis --yes --file requirements_conda.txt python=$CONDA_PYTHON_VERSION
+    - source activate travis
     - conda install --yes pip pytest coveralls pytest-cov
     # install skelet3d
 
