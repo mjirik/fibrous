@@ -123,7 +123,7 @@ class TBVolume(tree.TubeSkeletonBuilder):
         pdiff = [abs(p1[0] - p2[0]), abs(p1[1] - p2[1]), abs(p1[2] - p2[2])]
 
         # generovani hodnot pro osu segmentu
-        num_points = (
+        num_points = int(
             max(pdiff) * 2
         )  # na jeden "pixel nejdelsi osy" je 2 bodu primky (shannon)
         zvalues = np.linspace(p1[0], p2[0], num_points)
