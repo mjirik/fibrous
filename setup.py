@@ -13,8 +13,8 @@ setup(
     # http://packaging.python.org/en/latest/tutorial.html#version
     version='0.1.1',
     url='https://github.com//fibrous',
-    author='',
-    author_email='',
+    author='Miroslav Jirik',
+    author_email='miroslav.jirik@gmail.com',
     license='MIT',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
